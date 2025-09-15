@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Car, Users, Fuel, Shield, Clock } from 'lucide-react';
+import { Check, Car, Fuel, Shield, Clock } from 'lucide-react';
 
 const Pricing = () => {
   const carTypes = [
@@ -114,7 +114,10 @@ const Pricing = () => {
               <div className="text-center mb-6">
                 <div className="text-6xl mb-4">{car.image}</div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">{car.name}</h3>
-                <div className="text-4xl font-bold text-yellow-600">{car.price}<span className="text-lg text-gray-600">/km</span></div>
+                <div className="text-4xl font-bold text-yellow-600">
+                  {car.price}
+                  <span className="text-lg text-gray-600">/km</span>
+                </div>
               </div>
 
               <ul className="space-y-3">
@@ -190,51 +193,6 @@ const Pricing = () => {
             >
               Get Your Quote
             </button>
-          </div>
-        </div>
-
-        {/* Terms and Conditions */}
-        <div className="mt-12 bg-white rounded-2xl p-8 shadow-lg">
-          <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">Terms & Conditions</h3>
-          
-          <div className="grid md:grid-cols-2 gap-8">
-            <div>
-              <h4 className="text-lg font-bold text-gray-900 mb-4">One Way Trip Terms</h4>
-              <ul className="space-y-2 text-gray-700">
-                <li>• Driver Bata: ₹400</li>
-                <li>• Waiting Charges: ₹100 per hour</li>
-                <li>• Minimum billing: 130 KM</li>
-                <li>• Hill station charges: ₹300</li>
-                <li>• One way toll charges applicable</li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-lg font-bold text-gray-900 mb-4">Round Trip Terms</h4>
-              <ul className="space-y-2 text-gray-700">
-                <li>• Driver Bata: ₹500 per day</li>
-                <li>• Minimum billing: 250 KM</li>
-                <li>• Bangalore pickup: 300kms minimum</li>
-                <li>• Any other state: 250kms minimum</li>
-                <li>• 1 day = 1 calendar day (12 AM to 12 AM)</li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="mt-8 bg-yellow-50 rounded-lg p-6">
-            <h4 className="font-bold text-gray-900 mb-3">Important Notes</h4>
-            <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
-              <div>
-                <p>• Toll fees (as applicable)</p>
-                <p>• Inter-State Permit charges</p>
-                <p>• GST charges (if any)</p>
-              </div>
-              <div>
-                <p>• Luggage policy at driver's discretion</p>
-                <p>• Taxis are passenger vehicles only</p>
-                <p>• 1 day = 12 AM to 12 AM</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>
