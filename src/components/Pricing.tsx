@@ -4,56 +4,56 @@ import { Check, Car, Users, Fuel, Shield } from 'lucide-react';
 const Pricing = () => {
   const carTypes = [
     {
-      name: 'Etios',
-      price: '₹11',
+      name: 'ETIOS',
+      price: '₹14',
       image: '🚗',
       features: [
         '4 Seater',
         'AC & Music',
-        'Fuel Included',
-        'Driver Allowance',
-        'Toll & Parking'
+        'Driver Bata: ₹400',
+        'One way Toll',
+        'Min 130km One-way'
       ],
       popular: false
     },
     {
-      name: 'Sedan',
-      price: '₹12',
+      name: 'SEDAN',
+      price: '₹14',
       image: '🚙',
       features: [
         '4 Seater',
         'AC & Music',
-        'Fuel Included',
-        'Driver Allowance',
-        'Toll & Parking',
+        'Driver Bata: ₹400',
+        'One way Toll',
+        'Min 130km One-way',
         'Premium Comfort'
       ],
       popular: true
     },
     {
       name: 'SUV',
-      price: '₹15',
+      price: '₹19',
       image: '🚐',
       features: [
         '6 Seater',
         'AC & Music',
-        'Fuel Included',
-        'Driver Allowance',
-        'Toll & Parking',
+        'Driver Bata: ₹400',
+        'One way Toll',
+        'Min 130km One-way',
         'Extra Luggage Space'
       ],
       popular: false
     },
     {
-      name: 'Innova',
-      price: '₹16',
+      name: 'INNOVA',
+      price: '₹20',
       image: '🚌',
       features: [
         '7 Seater',
         'AC & Music',
-        'Fuel Included',
-        'Driver Allowance',
-        'Toll & Parking',
+        'Driver Bata: ₹400',
+        'One way Toll',
+        'Min 130km One-way',
         'Premium SUV Experience'
       ],
       popular: false
@@ -62,24 +62,24 @@ const Pricing = () => {
 
   const additionalInfo = [
     {
-      icon: <Fuel className="h-6 w-6 text-yellow-500" />,
-      title: 'Fuel Included',
-      description: 'No extra charges for fuel consumption'
-    },
-    {
-      icon: <Users className="h-6 w-6 text-yellow-500" />,
-      title: 'Driver Allowance',
-      description: 'Driver food & accommodation included'
-    },
-    {
       icon: <Car className="h-6 w-6 text-yellow-500" />,
+      title: 'Driver Bata',
+      description: 'One-way: ₹400 | Round-trip: ₹500/day'
+    },
+    {
+      icon: <Clock className="h-6 w-6 text-yellow-500" />,
+      title: 'Waiting Charges',
+      description: '₹100 per hour after free waiting time'
+    },
+    {
+      icon: <Fuel className="h-6 w-6 text-yellow-500" />,
       title: 'Toll & Parking',
-      description: 'All toll charges and parking fees covered'
+      description: 'Toll fees and inter-state permits extra'
     },
     {
       icon: <Shield className="h-6 w-6 text-yellow-500" />,
-      title: 'No Hidden Charges',
-      description: 'Transparent pricing with no surprises'
+      title: 'Hill Station',
+      description: 'Additional ₹300 charges for hill stations'
     }
   ];
 
@@ -89,8 +89,8 @@ const Pricing = () => {
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">Transparent Pricing</h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Choose the perfect car for your journey. All prices are per kilometer with no hidden charges.
-            Fuel, driver allowance, toll, and parking included.
+            Choose the perfect car for your journey. All prices are per kilometer with transparent pricing.
+            Driver bata, toll charges, and permits as per actual.
           </p>
         </div>
 
@@ -155,34 +155,34 @@ const Pricing = () => {
 
         {/* Pricing Examples */}
         <div className="bg-gray-50 rounded-2xl p-8">
-          <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">Sample Pricing</h3>
+          <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">Popular Route Pricing</h3>
           
           <div className="grid md:grid-cols-3 gap-6">
             <div className="bg-white rounded-lg p-6 text-center">
-              <h4 className="font-bold text-gray-900 mb-2">Mumbai to Pune</h4>
-              <p className="text-gray-600 mb-2">148 km • Sedan</p>
-              <p className="text-2xl font-bold text-yellow-600">₹1,776</p>
-              <p className="text-sm text-gray-600 mt-2">All inclusive</p>
+              <h4 className="font-bold text-gray-900 mb-2">Chennai to Madurai</h4>
+              <p className="text-gray-600 mb-2">458 km • Sedan</p>
+              <p className="text-2xl font-bold text-yellow-600">₹6,812</p>
+              <p className="text-sm text-gray-600 mt-2">+ Driver Bata + Toll</p>
             </div>
             
             <div className="bg-white rounded-lg p-6 text-center">
-              <h4 className="font-bold text-gray-900 mb-2">Delhi to Agra</h4>
-              <p className="text-gray-600 mb-2">233 km • SUV</p>
-              <p className="text-2xl font-bold text-yellow-600">₹3,495</p>
-              <p className="text-sm text-gray-600 mt-2">All inclusive</p>
+              <h4 className="font-bold text-gray-900 mb-2">Chennai to Coimbatore</h4>
+              <p className="text-gray-600 mb-2">500 km • SUV</p>
+              <p className="text-2xl font-bold text-yellow-600">₹9,500</p>
+              <p className="text-sm text-gray-600 mt-2">+ Driver Bata + Toll</p>
             </div>
             
             <div className="bg-white rounded-lg p-6 text-center">
-              <h4 className="font-bold text-gray-900 mb-2">Round Trip</h4>
-              <p className="text-gray-600 mb-2">500 km • Innova</p>
-              <p className="text-2xl font-bold text-yellow-600">₹8,000</p>
-              <p className="text-sm text-gray-600 mt-2">All inclusive</p>
+              <h4 className="font-bold text-gray-900 mb-2">Chennai to Salem</h4>
+              <p className="text-gray-600 mb-2">340 km • Innova</p>
+              <p className="text-2xl font-bold text-yellow-600">₹6,800</p>
+              <p className="text-sm text-gray-600 mt-2">+ Driver Bata + Toll</p>
             </div>
           </div>
 
           <div className="text-center mt-8">
             <p className="text-gray-600 mb-4">
-              * Prices may vary based on route, season, and availability. Final quote provided after booking confirmation.
+              * Base fare only. Additional charges: Driver Bata, Toll, Inter-state permits, GST (if applicable). Hill station: +₹300.
             </p>
             <button
               onClick={() => document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })}
@@ -190,6 +190,51 @@ const Pricing = () => {
             >
               Get Your Quote
             </button>
+          </div>
+        </div>
+
+        {/* Terms and Conditions */}
+        <div className="mt-12 bg-white rounded-2xl p-8 shadow-lg">
+          <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">Terms & Conditions</h3>
+          
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <h4 className="text-lg font-bold text-gray-900 mb-4">One Way Trip Terms</h4>
+              <ul className="space-y-2 text-gray-700">
+                <li>• Driver Bata: ₹400</li>
+                <li>• Waiting Charges: ₹100 per hour</li>
+                <li>• Minimum billing: 130 KM</li>
+                <li>• Hill station charges: ₹300</li>
+                <li>• One way toll charges applicable</li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="text-lg font-bold text-gray-900 mb-4">Round Trip Terms</h4>
+              <ul className="space-y-2 text-gray-700">
+                <li>• Driver Bata: ₹500 per day</li>
+                <li>• Minimum billing: 250 KM</li>
+                <li>• Bangalore pickup: 300kms minimum</li>
+                <li>• Any other state: 250kms minimum</li>
+                <li>• 1 day = 1 calendar day (12 AM to 12 AM)</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="mt-8 bg-yellow-50 rounded-lg p-6">
+            <h4 className="font-bold text-gray-900 mb-3">Important Notes</h4>
+            <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
+              <div>
+                <p>• Toll fees (as applicable)</p>
+                <p>• Inter-State Permit charges</p>
+                <p>• GST charges (if any)</p>
+              </div>
+              <div>
+                <p>• Luggage policy at driver's discretion</p>
+                <p>• Taxis are passenger vehicles only</p>
+                <p>• 1 day = 12 AM to 12 AM</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
