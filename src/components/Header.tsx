@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Phone, Mail } from 'lucide-react';
+import { Menu, X, Phone } from 'lucide-react';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,25 +11,9 @@ const Header = () => {
   return (
     <header className="bg-white shadow-lg sticky top-0 z-50">
       <div className="container mx-auto px-4">
-        {/* Top Bar */}
-        <div className="hidden md:flex justify-between items-center py-2 text-sm border-b border-gray-200">
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-2 text-gray-600">
-              <Phone className="h-4 w-4" />
-              <span>+1 (234) 567-890</span>
-            </div>
-            <div className="flex items-center space-x-2 text-gray-600">
-              <Mail className="h-4 w-4" />
-              <span>info@zipdroptaxi.com</span>
-            </div>
-          </div>
-          <div className="text-gray-600">
-            Available 24/7 • Best Rates Guaranteed
-          </div>
-        </div>
-
         {/* Main Header */}
         <div className="flex justify-between items-center py-4">
+          {/* Logo */}
           <div className="flex items-center space-x-3">
             <div className="bg-yellow-400 p-2 rounded-lg">
               <span className="text-2xl">🚕</span>
