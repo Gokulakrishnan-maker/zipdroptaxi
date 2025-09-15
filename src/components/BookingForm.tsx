@@ -95,180 +95,111 @@ const BookingForm = () => {
             </div>
 
             {/* Right Content - Booking Form */}
-            <div className="bg-white rounded-2xl p-8 shadow-2xl">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Taxi Booking Form</h3>
-              
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                {/* Trip Type */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Trip Type:</label>
-                  <div className="flex space-x-6">
-                    <label className="flex items-center cursor-pointer">
-                      <input
-                        type="radio"
-                        {...register('tripType', { required: 'Trip type is required' })}
-                        value="one-way"
-                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                      />
-                      <span className="ml-2 text-gray-700">One Way</span>
-                    </label>
-                    <label className="flex items-center cursor-pointer">
-                      <input
-                        type="radio"
-                        {...register('tripType', { required: 'Trip type is required' })}
-                        value="round-trip"
-                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                      />
-                      <span className="ml-2 text-gray-700">Round Trip</span>
-                    </label>
-                  </div>
-                  {errors.tripType && (
-                    <p className="mt-1 text-red-600 text-sm">{errors.tripType.message}</p>
-                  )}
-                </div>
+          
+      <div className="bg-white rounded-xl p-6 shadow-xl">
+      <h3 className="text-xl font-bold text-gray-900 mb-4">Taxi Booking</h3>
 
-                {/* Pickup and Drop Location */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Pickup Location:</label>
-                    <input
-                      type="text"
-                      {...register('pickupLocation', { required: 'Pickup location is required' })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                      placeholder="Enter a location"
-                    />
-                    {errors.pickupLocation && (
-                      <p className="mt-1 text-red-600 text-sm">{errors.pickupLocation.message}</p>
-                    )}
-                  </div>
+  <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    {/* Trip Type */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">Trip Type</label>
+      <div className="flex space-x-4">
+        <label className="flex items-center cursor-pointer">
+          <input
+            type="radio"
+            {...register('tripType', { required: 'Trip type is required' })}
+            value="one-way"
+            className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+          />
+          <span className="ml-2 text-gray-700">One Way</span>
+        </label>
+        <label className="flex items-center cursor-pointer">
+          <input
+            type="radio"
+            {...register('tripType', { required: 'Trip type is required' })}
+            value="round-trip"
+            className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+          />
+          <span className="ml-2 text-gray-700">Round Trip</span>
+        </label>
+      </div>
+      {errors.tripType && <p className="text-red-600 text-sm">{errors.tripType.message}</p>}
+    </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Drop Location:</label>
-                    <input
-                      type="text"
-                      {...register('dropLocation', { required: 'Drop location is required' })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                      placeholder="Enter a location"
-                    />
-                    {errors.dropLocation && (
-                      <p className="mt-1 text-red-600 text-sm">{errors.dropLocation.message}</p>
-                    )}
-                  </div>
-                </div>
+    {/* Pickup & Drop */}
+    <div className="grid grid-cols-2 gap-3">
+      <input
+        type="text"
+        {...register('pickupLocation', { required: 'Pickup location is required' })}
+        placeholder="Pickup Location"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 text-sm"
+      />
+      <input
+        type="text"
+        {...register('dropLocation', { required: 'Drop location is required' })}
+        placeholder="Drop Location"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 text-sm"
+      />
+    </div>
 
-                {/* Phone Number */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number:</label>
-                  <input
-                    type="tel"
-                    {...register('phone', { 
-                      required: 'Phone number is required',
-                      pattern: {
-                        value: /^[0-9]{10}$/,
-                        message: 'Enter a valid 10-digit phone number'
-                      }
-                    })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                    placeholder="Enter phone number"
-                  />
-                  {errors.phone && (
-                    <p className="mt-1 text-red-600 text-sm">{errors.phone.message}</p>
-                  )}
-                </div>
+    {/* Name & Phone in same row */}
+    <div className="grid grid-cols-2 gap-3">
+      <input
+        type="text"
+        {...register('name', { required: 'Name is required' })}
+        placeholder="Full Name"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 text-sm"
+      />
+      <input
+        type="tel"
+        {...register('phone', {
+          required: 'Phone number is required',
+          pattern: { value: /^[0-9]{10}$/, message: 'Enter valid 10-digit number' }
+        })}
+        placeholder="Phone Number"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 text-sm"
+      />
+    </div>
 
-                {/* Date and Time */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Travel Date:</label>
-                    <input
-                      type="date"
-                      {...register('date', { required: 'Travel date is required' })}
-                      min={new Date().toISOString().split('T')[0]}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                    />
-                    {errors.date && (
-                      <p className="mt-1 text-red-600 text-sm">{errors.date.message}</p>
-                    )}
-                  </div>
+    {/* Date & Time */}
+    <div className="grid grid-cols-2 gap-3">
+      <input
+        type="date"
+        {...register('date', { required: 'Travel date is required' })}
+        min={new Date().toISOString().split('T')[0]}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 text-sm"
+      />
+      <input
+        type="time"
+        {...register('time', { required: 'Travel time is required' })}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 text-sm"
+      />
+    </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Travel Time:</label>
-                    <input
-                      type="time"
-                      {...register('time', { required: 'Travel time is required' })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                    />
-                    {errors.time && (
-                      <p className="mt-1 text-red-600 text-sm">{errors.time.message}</p>
-                    )}
-                  </div>
-                </div>
+    {/* Car Type */}
+    <select
+      {...register('carType', { required: 'Car type is required' })}
+      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 text-sm"
+    >
+      <option value="">Select Car Type</option>
+      <option value="sedan">Sedan (₹14/km)</option>
+      <option value="etios">Etios (₹14/km)</option>
+      <option value="suv">SUV (₹19/km)</option>
+      <option value="innova">Innova (₹20/km)</option>
+    </select>
 
-                {/* Name */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name:</label>
-                  <input
-                    type="text"
-                    {...register('name', { required: 'Name is required' })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                    placeholder="Enter your full name"
-                  />
-                  {errors.name && (
-                    <p className="mt-1 text-red-600 text-sm">{errors.name.message}</p>
-                  )}
-                </div>
-
-                {/* Car Type */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Select Car Type:</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {carTypes.map((car) => (
-                      <label key={car.value} className="cursor-pointer group">
-                        <input
-                          type="radio"
-                          {...register('carType', { required: 'Car type is required' })}
-                          value={car.value}
-                          className="sr-only peer"
-                        />
-                        <div className="border-2 border-gray-200 rounded-lg p-3 text-center transition-all peer-checked:border-blue-500 peer-checked:bg-blue-50 group-hover:border-blue-400">
-                          <div className="text-lg mb-1">🚗</div>
-                          <div className="font-semibold text-gray-900 text-sm">{car.label}</div>
-                          <div className="text-blue-600 font-medium text-sm">{car.price}</div>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                  {errors.carType && (
-                    <p className="mt-2 text-red-600 text-sm">{errors.carType.message}</p>
-                  )}
-                </div>
-
-                {/* Submit Message */}
-                {submitMessage && (
-                  <div className={`p-4 rounded-lg flex items-center space-x-2 ${submitSuccess ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
-                    {submitSuccess ? (
-                      <CheckCircle className="h-5 w-5" />
-                    ) : (
-                      <AlertCircle className="h-5 w-5" />
-                    )}
-                    <span>{submitMessage}</span>
-                  </div>
-                )}
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold text-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? 'Submitting...' : 'Book Your Taxi Now'}
-                </button>
-
-                <div className="text-center text-sm text-gray-500">
-                  We'll confirm your booking via call or WhatsApp within 30 minutes.
-                </div>
-              </form>
+    {/* Submit Button */}
+    <button
+      type="submit"
+      disabled={isSubmitting}
+      className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-blue-700 transition disabled:opacity-50"
+      >
+            {isSubmitting ? 'Submitting...' : 'Book Now'}
+            </button>
+            </form>
             </div>
+
+          </div>
           </div>
         </div>
       </section>
