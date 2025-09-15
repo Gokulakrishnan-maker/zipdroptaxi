@@ -200,7 +200,6 @@ const BookingForm = () => {
             </div>
 
           </div>
-          </div>
         </div>
       </section>
 
