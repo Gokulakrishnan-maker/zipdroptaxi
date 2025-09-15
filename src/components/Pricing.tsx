@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Car, Users, Fuel, Shield } from 'lucide-react';
+import { Check, Car, Users, Fuel, Shield, Clock } from 'lucide-react';
 
 const Pricing = () => {
   const carTypes = [
