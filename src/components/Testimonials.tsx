@@ -5,50 +5,50 @@ const Testimonials = () => {
   const testimonials = [
     {
       name: 'Rajesh Kumar',
-      location: 'Mumbai',
+      location: 'Chennai',
       rating: 5,
-      text: 'Excellent service! The driver was professional and the car was clean and comfortable. Booked for Mumbai to Pune trip and it was smooth throughout.',
-      trip: 'Mumbai → Pune',
+      text: 'Excellent service! The driver was professional and the car was clean and comfortable. Booked for Chennai to Madurai trip and it was smooth throughout.',
+      trip: 'Chennai → Madurai',
       date: 'December 2024'
     },
     {
       name: 'Priya Sharma',
-      location: 'Delhi',
+      location: 'Coimbatore',
       rating: 5,
-      text: 'Best taxi service I have used. Transparent pricing with no hidden charges. The driver reached on time and was very courteous. Highly recommend!',
-      trip: 'Delhi → Agra',
+      text: 'Best taxi service I have used. Transparent pricing with clear breakdown of charges. The driver reached on time and was very courteous. Highly recommend!',
+      trip: 'Coimbatore → Chennai',
       date: 'November 2024'
     },
     {
       name: 'Amit Patel',
-      location: 'Bangalore',
+      location: 'Salem',
       rating: 5,
       text: 'Professional service with great customer support. The booking process was simple and they kept me updated throughout the journey. Will definitely use again.',
-      trip: 'Bangalore → Mysore',
+      trip: 'Salem → Chennai',
       date: 'December 2024'
     },
     {
       name: 'Sneha Reddy',
-      location: 'Hyderabad',
+      location: 'Madurai',
       rating: 5,
       text: 'Amazing experience! Clean car, experienced driver, and reasonable pricing. The 24/7 customer support was very helpful when I had questions.',
-      trip: 'Hyderabad → Vijayawada',
+      trip: 'Madurai → Coimbatore',
       date: 'November 2024'
     },
     {
       name: 'Vikram Singh',
       location: 'Chennai',
       rating: 5,
-      text: 'Zip Drop Taxi exceeded my expectations. The SUV was spacious and perfect for our family trip. Driver was knowledgeable about the route and very helpful.',
-      trip: 'Chennai → Pondicherry',
+      text: 'Zip Drop Taxi exceeded my expectations. The Innova was spacious and perfect for our family trip. Driver was knowledgeable about the route and very helpful.',
+      trip: 'Chennai → Thanjavur',
       date: 'December 2024'
     },
     {
       name: 'Ravi Gupta',
-      location: 'Kolkata',
+      location: 'Pondicherry',
       rating: 5,
       text: 'Outstanding service for long distance travel. Comfortable seats, AC working perfectly, and the driver took proper rest breaks. Felt safe throughout the journey.',
-      trip: 'Kolkata → Darjeeling',
+      trip: 'Pondicherry → Bangalore',
       date: 'November 2024'
     }
   ];

@@ -4,56 +4,56 @@ import { MapPin, ArrowRight, Clock, Star } from 'lucide-react';
 const Routes = () => {
   const popularRoutes = [
     {
-      from: 'Mumbai',
-      to: 'Pune',
-      distance: '148 km',
-      duration: '3h 30m',
-      price: 'From ₹1,776',
+      from: 'Chennai',
+      to: 'Madurai',
+      distance: '458 km',
+      duration: '7h 30m',
+      price: 'From ₹6,812',
       rating: 4.8,
       bookings: '500+ bookings'
     },
     {
-      from: 'Delhi',
-      to: 'Agra',
-      distance: '233 km',
-      duration: '4h 15m',
-      price: 'From ₹2,796',
+      from: 'Chennai',
+      to: 'Coimbatore',
+      distance: '500 km',
+      duration: '8h',
+      price: 'From ₹7,400',
       rating: 4.9,
       bookings: '750+ bookings'
     },
     {
-      from: 'Bangalore',
-      to: 'Mysore',
-      distance: '144 km',
-      duration: '3h 20m',
-      price: 'From ₹1,728',
+      from: 'Madurai',
+      to: 'Chennai',
+      distance: '458 km',
+      duration: '7h 30m',
+      price: 'From ₹6,812',
       rating: 4.7,
       bookings: '400+ bookings'
     },
     {
       from: 'Chennai',
-      to: 'Pondicherry',
-      distance: '162 km',
-      duration: '3h 45m',
-      price: 'From ₹1,944',
+      to: 'Salem',
+      distance: '340 km',
+      duration: '5h 30m',
+      price: 'From ₹5,160',
       rating: 4.8,
       bookings: '350+ bookings'
     },
     {
-      from: 'Hyderabad',
-      to: 'Vijayawada',
-      distance: '275 km',
-      duration: '5h 10m',
-      price: 'From ₹3,300',
+      from: 'Chennai',
+      to: 'Tiruchirappalli',
+      distance: '320 km',
+      duration: '5h',
+      price: 'From ₹4,880',
       rating: 4.6,
       bookings: '200+ bookings'
     },
     {
-      from: 'Kolkata',
-      to: 'Darjeeling',
-      distance: '563 km',
-      duration: '10h 30m',
-      price: 'From ₹6,756',
+      from: 'Chennai',
+      to: 'Thanjavur',
+      distance: '350 km',
+      duration: '6h',
+      price: 'From ₹5,300',
       rating: 4.9,
       bookings: '150+ bookings'
     }
@@ -77,8 +77,8 @@ const Routes = () => {
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">Popular Routes</h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Choose from our most popular intercity routes with guaranteed best prices. 
-            Professional drivers and comfortable cars for all destinations.
+            Most booked taxi routes across Tamil Nadu with transparent pricing and professional service.
+            All routes available for both one-way and round-trip bookings.
           </p>
         </div>
 
@@ -129,7 +129,7 @@ const Routes = () => {
                 {/* Price */}
                 <div className="text-center mb-6">
                   <div className="text-3xl font-bold text-yellow-600">{route.price}</div>
-                  <div className="text-sm text-gray-600">Starting price</div>
+                  <div className="text-sm text-gray-600">Base fare (+ extras)</div>
                 </div>
 
                 {/* Book Button */}
@@ -149,7 +149,7 @@ const Routes = () => {
           <div className="bg-white rounded-2xl p-8 shadow-lg max-w-2xl mx-auto">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">Don't see your route?</h3>
             <p className="text-gray-600 mb-6">
-              We cover 500+ cities across India. Enter your custom route in our booking form 
+              We cover all major cities across Tamil Nadu and neighboring states. Enter your custom route in our booking form 
               and get instant quotes for any destination.
             </p>
             <button 
@@ -158,6 +158,85 @@ const Routes = () => {
             >
               Book Custom Route
             </button>
+          </div>
+        </div>
+
+        {/* Outstation City Cabs */}
+        <div className="mt-16">
+          <h3 className="text-3xl font-bold text-gray-900 text-center mb-12">Outstation City Cabs</h3>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Chennai Taxi */}
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <h4 className="text-xl font-bold text-gray-900 mb-4 text-center">Chennai Taxi</h4>
+              <ul className="space-y-2">
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Chennai to Coimbatore Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Chennai to Bangalore Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Chennai to Erode Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Chennai to Madurai Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Chennai to Pondicherry Taxi</a></li>
+              </ul>
+            </div>
+
+            {/* Coimbatore Taxi */}
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <h4 className="text-xl font-bold text-gray-900 mb-4 text-center">Coimbatore Taxi</h4>
+              <ul className="space-y-2">
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Coimbatore to Chennai Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Coimbatore to Bangalore Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Coimbatore to Madurai Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Coimbatore to Erode Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Coimbatore to Pondicherry Taxi</a></li>
+              </ul>
+            </div>
+
+            {/* Bangalore Taxi */}
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <h4 className="text-xl font-bold text-gray-900 mb-4 text-center">Bangalore Taxi</h4>
+              <ul className="space-y-2">
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Bangalore to Chennai Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Bangalore to Coimbatore Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Bangalore to Madurai Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Bangalore to Erode Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Bangalore to Pondicherry Taxi</a></li>
+              </ul>
+            </div>
+
+            {/* Erode Taxi */}
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <h4 className="text-xl font-bold text-gray-900 mb-4 text-center">Erode Taxi</h4>
+              <ul className="space-y-2">
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Erode to Chennai Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Erode to Coimbatore Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Erode to Madurai Drop Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Erode to Pondicherry Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Erode to Bangalore Taxi</a></li>
+              </ul>
+            </div>
+
+            {/* Madurai Taxi */}
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <h4 className="text-xl font-bold text-gray-900 mb-4 text-center">Madurai Taxi</h4>
+              <ul className="space-y-2">
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Madurai to Chennai Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Madurai to Coimbatore Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Madurai to Erode Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Madurai to Bangalore Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Madurai to Pondicherry Taxi</a></li>
+              </ul>
+            </div>
+
+            {/* Pondicherry Taxi */}
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <h4 className="text-xl font-bold text-gray-900 mb-4 text-center">Pondicherry Taxi</h4>
+              <ul className="space-y-2">
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Pondicherry to Chennai Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Pondicherry to Coimbatore Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Pondicherry to Bangalore Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Pondicherry to Erode Taxi</a></li>
+                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Pondicherry to Madurai Taxi</a></li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>

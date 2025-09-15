@@ -25,8 +25,8 @@ const BookingForm = () => {
 
   const carTypes = [
     { value: 'sedan', label: 'Sedan (4 Seats)', price: '₹14/km' },
-    { value: 'suv', label: 'SUV (6 Seats)', price: '₹19/km' },
     { value: 'etios', label: 'Etios (4 Seats)', price: '₹14/km' },
+    { value: 'suv', label: 'SUV (6 Seats)', price: '₹19/km' },
     { value: 'innova', label: 'Innova (7 Seats)', price: '₹20/km' }
   ];
 

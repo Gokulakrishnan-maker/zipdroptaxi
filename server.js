@@ -58,10 +58,18 @@ app.post('/api/book', async (req, res) => {
 
     // Validate distance
     if (!validateDistance(tripType, distance)) {
-      const minDistance = tripType === 'one-way' ? 130 : 250;
+      let minDistance = tripType === 'one-way' ? 130 : 250;
+      let message = `Minimum ${minDistance} km required for ${tripType} trips`;
+      
+      // Special message for Bangalore
+      if (tripType === 'round-trip' && (pickupLocation.toLowerCase().includes('bangalore') || dropLocation.toLowerCase().includes('bangalore'))) {
+        minDistance = 300;
+        message = `Minimum 300 km required for Bangalore pickup round trips`;
+      }
+      
       return res.status(400).json({
         success: false,
-        message: `Minimum ${minDistance} km required for ${tripType} trips`
+        message: message
       });
     }
 

@@ -56,7 +56,7 @@ const Hero = () => {
               </div>
               <div className="text-white">
                 <div className="text-3xl font-bold">500+</div>
-                <div className="text-sm opacity-90">Cities</div>
+                <div className="text-sm opacity-90">Routes</div>
               </div>
               <div className="text-white">
                 <div className="text-3xl font-bold">5★</div>
