@@ -74,28 +74,6 @@ const Services = () => {
             </div>
           ))}
         </div>
-
-        {/* CTA Section */}
-        <div className="mt-16 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-2xl p-8 text-center">
-          <h3 className="text-3xl font-bold text-gray-900 mb-4">Ready to Experience Premium Service?</h3>
-          <p className="text-xl text-gray-800 mb-6 opacity-90">
-            Book your taxi now and enjoy comfortable, safe travel with professional drivers.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
-              onClick={() => document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })}
-              className="bg-gray-900 text-white px-8 py-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
-            >
-              Book Your Ride
-            </button>
-            <a 
-              href="tel:+1234567890"
-              className="bg-white text-gray-900 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-            >
-              Call Now: +1 (234) 567-890
-            </a>
-          </div>
-        </div>
       </div>
     </section>
   );

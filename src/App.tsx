@@ -8,6 +8,7 @@ import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import WhatsAppFloat from './components/WhatsAppFloat';
+import PhoneFloat from './components/PhoneFloat';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
       <Contact />
       <Footer />
       <WhatsAppFloat />
+      <PhoneFloat />
     </div>
   );
 }

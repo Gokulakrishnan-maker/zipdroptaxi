@@ -1,7 +1,9 @@
 import React from 'react';
-import { MapPin, ArrowRight, Clock, Star } from 'lucide-react';
+import { MapPin, ArrowRight, Clock, Star, ChevronDown, ChevronUp } from 'lucide-react';
 
 const Routes = () => {
+  const [expandedCity, setExpandedCity] = React.useState<string | null>(null);
+
   const popularRoutes = [
     {
       from: 'Chennai',
@@ -165,80 +167,131 @@ const Routes = () => {
         <div className="mt-16">
           <h3 className="text-3xl font-bold text-gray-900 text-center mb-12">Outstation City Cabs</h3>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Chennai Taxi */}
-            <div className="bg-white rounded-xl p-6 shadow-lg">
-              <h4 className="text-xl font-bold text-gray-900 mb-4 text-center">Chennai Taxi</h4>
-              <ul className="space-y-2">
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Chennai to Coimbatore Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Chennai to Bangalore Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Chennai to Erode Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Chennai to Madurai Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Chennai to Pondicherry Taxi</a></li>
-              </ul>
-            </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                city: 'Chennai',
+                routes: [
+                  { destination: 'Coimbatore', distance: '500 km', duration: '8h', price: '₹7,400', popular: 'Kovai Kutralam Falls, Marudamalai Temple' },
+                  { destination: 'Bangalore', distance: '350 km', duration: '6h', price: '₹5,250', popular: 'Lalbagh Garden, Cubbon Park, Palace' },
+                  { destination: 'Erode', distance: '400 km', duration: '7h', price: '₹6,000', popular: 'Bhavani Sangameshwarar Temple, Kodiveri Dam' },
+                  { destination: 'Madurai', distance: '458 km', duration: '7h 30m', price: '₹6,812', popular: 'Meenakshi Temple, Thirumalai Nayakkar Palace' },
+                  { destination: 'Pondicherry', distance: '160 km', duration: '3h', price: '₹2,400', popular: 'French Quarter, Auroville, Beach Promenade' }
+                ]
+              },
+              {
+                city: 'Coimbatore',
+                routes: [
+                  { destination: 'Chennai', distance: '500 km', duration: '8h', price: '₹7,400', popular: 'Marina Beach, Fort St. George, Express Avenue' },
+                  { destination: 'Bangalore', distance: '360 km', duration: '6h', price: '₹5,400', popular: 'Lalbagh Garden, Cubbon Park, Palace' },
+                  { destination: 'Madurai', distance: '220 km', duration: '3h 30m', price: '₹3,300', popular: 'Meenakshi Temple, Thirumalai Nayakkar Palace' },
+                  { destination: 'Erode', distance: '90 km', duration: '1h 30m', price: '₹1,350', popular: 'Bhavani Sangameshwarar Temple, Kodiveri Dam' },
+                  { destination: 'Pondicherry', distance: '380 km', duration: '6h', price: '₹5,700', popular: 'French Quarter, Auroville, Beach Promenade' }
+                ]
+              },
+              {
+                city: 'Bangalore',
+                routes: [
+                  { destination: 'Chennai', distance: '350 km', duration: '6h', price: '₹5,250', popular: 'Marina Beach, Fort St. George, Express Avenue' },
+                  { destination: 'Coimbatore', distance: '360 km', duration: '6h', price: '₹5,400', popular: 'Kovai Kutralam Falls, Marudamalai Temple' },
+                  { destination: 'Madurai', distance: '470 km', duration: '8h', price: '₹7,050', popular: 'Meenakshi Temple, Thirumalai Nayakkar Palace' },
+                  { destination: 'Erode', distance: '280 km', duration: '5h', price: '₹4,200', popular: 'Bhavani Sangameshwarar Temple, Kodiveri Dam' },
+                  { destination: 'Pondicherry', distance: '320 km', duration: '5h 30m', price: '₹4,800', popular: 'French Quarter, Auroville, Beach Promenade' }
+                ]
+              },
+              {
+                city: 'Erode',
+                routes: [
+                  { destination: 'Chennai', distance: '400 km', duration: '7h', price: '₹6,000', popular: 'Marina Beach, Fort St. George, Express Avenue' },
+                  { destination: 'Coimbatore', distance: '90 km', duration: '1h 30m', price: '₹1,350', popular: 'Kovai Kutralam Falls, Marudamalai Temple' },
+                  { destination: 'Madurai', distance: '200 km', duration: '3h', price: '₹3,000', popular: 'Meenakshi Temple, Thirumalai Nayakkar Palace' },
+                  { destination: 'Pondicherry', distance: '320 km', duration: '5h', price: '₹4,800', popular: 'French Quarter, Auroville, Beach Promenade' },
+                  { destination: 'Bangalore', distance: '280 km', duration: '5h', price: '₹4,200', popular: 'Lalbagh Garden, Cubbon Park, Palace' }
+                ]
+              },
+              {
+                city: 'Madurai',
+                routes: [
+                  { destination: 'Chennai', distance: '458 km', duration: '7h 30m', price: '₹6,812', popular: 'Marina Beach, Fort St. George, Express Avenue' },
+                  { destination: 'Coimbatore', distance: '220 km', duration: '3h 30m', price: '₹3,300', popular: 'Kovai Kutralam Falls, Marudamalai Temple' },
+                  { destination: 'Erode', distance: '200 km', duration: '3h', price: '₹3,000', popular: 'Bhavani Sangameshwarar Temple, Kodiveri Dam' },
+                  { destination: 'Bangalore', distance: '470 km', duration: '8h', price: '₹7,050', popular: 'Lalbagh Garden, Cubbon Park, Palace' },
+                  { destination: 'Pondicherry', distance: '380 km', duration: '6h', price: '₹5,700', popular: 'French Quarter, Auroville, Beach Promenade' }
+                ]
+              },
+              {
+                city: 'Pondicherry',
+                routes: [
+                  { destination: 'Chennai', distance: '160 km', duration: '3h', price: '₹2,400', popular: 'Marina Beach, Fort St. George, Express Avenue' },
+                  { destination: 'Coimbatore', distance: '380 km', duration: '6h', price: '₹5,700', popular: 'Kovai Kutralam Falls, Marudamalai Temple' },
+                  { destination: 'Bangalore', distance: '320 km', duration: '5h 30m', price: '₹4,800', popular: 'Lalbagh Garden, Cubbon Park, Palace' },
+                  { destination: 'Erode', distance: '320 km', duration: '5h', price: '₹4,800', popular: 'Bhavani Sangameshwarar Temple, Kodiveri Dam' },
+                  { destination: 'Madurai', distance: '380 km', duration: '6h', price: '₹5,700', popular: 'Meenakshi Temple, Thirumalai Nayakkar Palace' }
+                ]
+              }
+            ].map((cityData, index) => (
+              <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden">
+                <button
+                  onClick={() => setExpandedCity(expandedCity === cityData.city ? null : cityData.city)}
+                  className="w-full p-6 text-left hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xl font-bold text-gray-900">{cityData.city} Taxi</h4>
+                    {expandedCity === cityData.city ? (
+                      <ChevronUp className="h-5 w-5 text-gray-500" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5 text-gray-500" />
+                    )}
+                  </div>
+                </button>
 
-            {/* Coimbatore Taxi */}
-            <div className="bg-white rounded-xl p-6 shadow-lg">
-              <h4 className="text-xl font-bold text-gray-900 mb-4 text-center">Coimbatore Taxi</h4>
-              <ul className="space-y-2">
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Coimbatore to Chennai Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Coimbatore to Bangalore Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Coimbatore to Madurai Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Coimbatore to Erode Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Coimbatore to Pondicherry Taxi</a></li>
-              </ul>
-            </div>
-
-            {/* Bangalore Taxi */}
-            <div className="bg-white rounded-xl p-6 shadow-lg">
-              <h4 className="text-xl font-bold text-gray-900 mb-4 text-center">Bangalore Taxi</h4>
-              <ul className="space-y-2">
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Bangalore to Chennai Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Bangalore to Coimbatore Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Bangalore to Madurai Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Bangalore to Erode Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Bangalore to Pondicherry Taxi</a></li>
-              </ul>
-            </div>
-
-            {/* Erode Taxi */}
-            <div className="bg-white rounded-xl p-6 shadow-lg">
-              <h4 className="text-xl font-bold text-gray-900 mb-4 text-center">Erode Taxi</h4>
-              <ul className="space-y-2">
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Erode to Chennai Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Erode to Coimbatore Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Erode to Madurai Drop Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Erode to Pondicherry Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Erode to Bangalore Taxi</a></li>
-              </ul>
-            </div>
-
-            {/* Madurai Taxi */}
-            <div className="bg-white rounded-xl p-6 shadow-lg">
-              <h4 className="text-xl font-bold text-gray-900 mb-4 text-center">Madurai Taxi</h4>
-              <ul className="space-y-2">
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Madurai to Chennai Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Madurai to Coimbatore Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Madurai to Erode Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Madurai to Bangalore Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Madurai to Pondicherry Taxi</a></li>
-              </ul>
-            </div>
-
-            {/* Pondicherry Taxi */}
-            <div className="bg-white rounded-xl p-6 shadow-lg">
-              <h4 className="text-xl font-bold text-gray-900 mb-4 text-center">Pondicherry Taxi</h4>
-              <ul className="space-y-2">
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Pondicherry to Chennai Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Pondicherry to Coimbatore Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Pondicherry to Bangalore Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Pondicherry to Erode Taxi</a></li>
-                <li><a href="#booking" className="text-yellow-600 hover:text-yellow-700">Pondicherry to Madurai Taxi</a></li>
-              </ul>
-            </div>
+                {expandedCity === cityData.city && (
+                  <div className="px-6 pb-6">
+                    <div className="space-y-4">
+                      {cityData.routes.map((route, routeIndex) => (
+                        <div key={routeIndex} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div className="flex items-center justify-between mb-2">
+                            <h5 className="font-semibold text-gray-900">
+                              {cityData.city} to {route.destination}
+                            </h5>
+                            <span className="text-lg font-bold text-yellow-600">{route.price}</span>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4 mb-3 text-sm text-gray-600">
+                            <div>📍 Distance: {route.distance}</div>
+                            <div>⏱️ Duration: {route.duration}</div>
+                          </div>
+                          
+                          <div className="mb-3">
+                            <p className="text-sm text-gray-700">
+                              <span className="font-medium">Popular attractions:</span> {route.popular}
+                            </p>
+                          </div>
+                          
+                          <button
+                            onClick={() => {
+                              const pickupInput = document.querySelector('input[name="pickupLocation"]') as HTMLInputElement;
+                              const dropInput = document.querySelector('input[name="dropLocation"]') as HTMLInputElement;
+                              
+                              if (pickupInput) pickupInput.value = cityData.city;
+                              if (dropInput) dropInput.value = route.destination;
+                              
+                              document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                            className="w-full bg-yellow-400 text-gray-900 py-2 px-4 rounded-lg font-semibold hover:bg-yellow-500 transition-colors text-sm"
+                          >
+                            Book This Route
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
+
       </div>
     </section>
   );
