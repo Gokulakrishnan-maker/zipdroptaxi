@@ -127,39 +127,51 @@ const BookingForm = () => {
     </div>
 
     {/* Pickup & Drop */}
-    <div className="grid grid-cols-2 gap-3">
-      <input
-        type="text"
-        {...register('pickupLocation', { required: 'Pickup location is required' })}
-        placeholder="Pickup Location"
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 text-sm"
-      />
-      <input
-        type="text"
-        {...register('dropLocation', { required: 'Drop location is required' })}
-        placeholder="Drop Location"
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 text-sm"
-      />
-    </div>
+   <div className="grid grid-cols-2 gap-3">
+  <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-400">
+    <MapPin className="w-5 h-5 text-gray-500 mr-2" />
+    <input
+      type="text"
+      {...register('pickupLocation', { required: 'Pickup location is required' })}
+      placeholder="Pickup Location"
+      className="w-full outline-none text-sm"
+    />
+  </div>
+  <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-400">
+    <MapPin className="w-5 h-5 text-gray-500 mr-2" />
+    <input
+      type="text"
+      {...register('dropLocation', { required: 'Drop location is required' })}
+      placeholder="Drop Location"
+      className="w-full outline-none text-sm"
+    />
+  </div>
+</div>
 
     {/* Name & Phone in same row */}
     <div className="grid grid-cols-2 gap-3">
-      <input
-        type="text"
-        {...register('name', { required: 'Name is required' })}
-        placeholder="Full Name"
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 text-sm"
-      />
-      <input
-        type="tel"
-        {...register('phone', {
-          required: 'Phone number is required',
-          pattern: { value: /^[0-9]{10}$/, message: 'Enter valid 10-digit number' }
-        })}
-        placeholder="Phone Number"
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 text-sm"
-      />
-    </div>
+  <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-400">
+    <User className="w-5 h-5 text-gray-500 mr-2" />
+    <input
+      type="text"
+      {...register('name', { required: 'Name is required' })}
+      placeholder="Full Name"
+      className="w-full outline-none text-sm"
+    />
+  </div>
+  <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-400">
+    <Phone className="w-5 h-5 text-gray-500 mr-2" />
+    <input
+      type="tel"
+      {...register('phone', {
+        required: 'Phone number is required',
+        pattern: { value: /^[0-9]{10}$/, message: 'Enter valid 10-digit number' }
+      })}
+      placeholder="Phone Number"
+      className="w-full outline-none text-sm"
+    />
+  </div>
+</div>
 
     {/* Date & Time */}
     <div className="grid grid-cols-2 gap-3">
