@@ -177,16 +177,39 @@ const BookingForm = () => {
     </div>
 
     {/* Car Type */}
-    <select
-      {...register('carType', { required: 'Car type is required' })}
-      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 text-sm"
-    >
-      <option value="">Select Car Type</option>
-      <option value="sedan">Sedan (₹14/km)</option>
-      <option value="etios">Etios (₹14/km)</option>
-      <option value="suv">SUV (₹19/km)</option>
-      <option value="innova">Innova (₹20/km)</option>
-    </select>
+    <div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">Car Type</label>
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    {carTypes.map((car, index) => (
+      <label
+        key={car.value}
+        className="cursor-pointer border rounded-xl p-4 text-center shadow-sm hover:shadow-md transition relative"
+      >
+        <input
+          type="radio"
+          {...register('carType', { required: 'Car type is required' })}
+          value={car.value}
+          className="hidden peer"
+        />
+        {/* Car Icon (replace 🚗 with actual car images if you have them) */}
+        <div className="text-4xl mb-2">
+          {index === 0 && '🚘'} {/* Sedan */}
+          {index === 1 && '🚗'} {/* Etios */}
+          {index === 2 && '🚙'} {/* SUV */}
+          {index === 3 && '🚐'} {/* Innova */}
+        </div>
+        <div className="font-bold text-gray-800">{car.label.split(' ')[0]}</div>
+        <div className="text-sm text-gray-600">{car.price}</div>
+
+        {/* Highlight selected */}
+        <span className="absolute inset-0 border-2 border-blue-500 rounded-xl hidden peer-checked:block"></span>
+      </label>
+    ))}
+  </div>
+  {errors.carType && (
+    <p className="text-red-600 text-sm mt-2">{errors.carType.message}</p>
+  )}
+</div>
 
     {/* Submit Button */}
     <button
