@@ -14,7 +14,7 @@ interface BookingFormData {
   phone: string;
 }
 
-const HomePage = () => {
+const BookingForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
