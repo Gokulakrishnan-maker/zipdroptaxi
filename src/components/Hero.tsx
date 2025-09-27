@@ -1,9 +1,94 @@
 import React from 'react';
 import { ArrowRight, CheckCircle } from 'lucide-react';
+import { loadGoogleMapsAPI, calculateDistance } from '../utils/googleMaps';
+import { calculateFare } from '../utils/fareCalculator';
+
 
 const Hero = () => {
-  const handleBookNow = () => {
-    document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
+  const [bookingForm, setBookingForm] = useState({
+    from: '',
+    to: '',
+    tripType: 'oneway'
+  });
+
+  const [selectedVehicle, setSelectedVehicle] = useState<{ name: string; rate: number } | null>(null);
+  const [fare, setFare] = useState<number | null>(null);
+  const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = useState(false);
+
+  const fromInputRef = useRef<HTMLInputElement>(null);
+  const toInputRef = useRef<HTMLInputElement>(null);
+  const fromAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const toAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+
+  const vehicles = [
+    { name: 'SEDAN', rate: 14 },
+    { name: 'ETIOS', rate: 14 },
+    { name: 'SUV', rate: 19 },
+    { name: 'INNOVA', rate: 20 }
+  ];
+
+  useEffect(() => {
+    const initMaps = async () => {
+      try {
+        await loadGoogleMapsAPI();
+        setIsGoogleMapsLoaded(true);
+      } catch (err) {
+        console.error('Google Maps load failed', err);
+      }
+    };
+    initMaps();
+  }, []);
+
+  useEffect(() => {
+    if (isGoogleMapsLoaded && fromInputRef.current && toInputRef.current) {
+      fromAutocompleteRef.current = new google.maps.places.Autocomplete(fromInputRef.current, {
+        componentRestrictions: { country: 'IN' },
+        types: ['establishment', 'geocode']
+      });
+      toAutocompleteRef.current = new google.maps.places.Autocomplete(toInputRef.current, {
+        componentRestrictions: { country: 'IN' },
+        types: ['establishment', 'geocode']
+      });
+
+      fromAutocompleteRef.current.addListener('place_changed', () => {
+        const place = fromAutocompleteRef.current?.getPlace();
+        if (place?.formatted_address) {
+          setBookingForm(prev => ({ ...prev, from: place.formatted_address }));
+        }
+      });
+
+      toAutocompleteRef.current.addListener('place_changed', () => {
+        const place = toAutocompleteRef.current?.getPlace();
+        if (place?.formatted_address) {
+          setBookingForm(prev => ({ ...prev, to: place.formatted_address }));
+        }
+      });
+    }
+  }, [isGoogleMapsLoaded]);
+
+  const handleVehicleSelect = async (vehicle: { name: string; rate: number }) => {
+    setSelectedVehicle(vehicle);
+
+    if (isGoogleMapsLoaded && fromAutocompleteRef.current && toAutocompleteRef.current) {
+      const fromPlace = fromAutocompleteRef.current.getPlace();
+      const toPlace = toAutocompleteRef.current.getPlace();
+
+      if (fromPlace.geometry?.location && toPlace.geometry?.location) {
+        try {
+          const { distance } = await calculateDistance(fromPlace.geometry.location, toPlace.geometry.location);
+
+          // Minimum distance rules
+          let effectiveDistance = distance;
+          if (bookingForm.tripType === 'oneway') effectiveDistance = Math.max(distance, 130);
+          else effectiveDistance = Math.max(distance * 2, 250); // Round trip
+
+          const estimatedFare = Math.round(effectiveDistance * vehicle.rate + (bookingForm.tripType === 'oneway' ? 400 : 500));
+          setFare(estimatedFare);
+        } catch (err) {
+          console.error('Distance calculation failed', err);
+        }
+      }
+    }
   };
 
   return (
