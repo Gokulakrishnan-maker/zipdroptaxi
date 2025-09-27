@@ -1,8 +1,7 @@
 import React from 'react';
 import { ArrowRight, CheckCircle } from 'lucide-react';
-import { loadGoogleMapsAPI, calculateDistance } from '../utils/googleMaps';
 import { calculateFare } from '../utils/fareCalculator';
-
+import { loadGoogleMapsAPI } from '../utils/googleMaps';
 
 const Hero = () => {
   const [bookingForm, setBookingForm] = useState({
