@@ -75,17 +75,24 @@ const BookingForm = () => {
       {/* Hero + Booking Form */}
       <section
         id="home"
-        className="relative bg-gradient-to-r from-blue-100 via-blue-200 to-blue-300 min-h-screen flex items-center"
+        className="relative min-h-screen flex items-center"
+        style={{
+          backgroundImage: 'url(https://images.pexels.com/photos/1592384/pexels-photo-1592384.jpeg?auto=compress&cs=tinysrgb&w=1920)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
       >
+        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <div className="text-left">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-6 leading-tight">
-                Tamil Nadu's Most Trusted <br />
-                <span className="text-blue-600">One-Way Drop Taxi</span>
+                <span className="text-white">Tamil Nadu's Most Trusted</span> <br />
+                <span className="text-yellow-400">One-Way Drop Taxi</span>
               </h1>
-              <p className="text-xl text-gray-700 mb-8 max-w-xl">
+              <p className="text-xl text-white mb-8 max-w-xl">
                 Safe, comfortable, and affordable taxi service across all major
                 cities in Tamil Nadu. Book your one-way drop taxi with
                 transparent pricing and professional drivers.
@@ -119,7 +126,7 @@ const BookingForm = () => {
             </div>
 
             {/* Right Side - Booking Form */}
-            <div className="bg-white p-6 rounded-lg shadow-lg">
+            <div className="bg-white p-6 rounded-lg shadow-xl backdrop-blur-sm bg-opacity-95">
               <h3 className="text-xl font-bold mb-4">Taxi Booking</h3>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 {/* Trip Type */}
