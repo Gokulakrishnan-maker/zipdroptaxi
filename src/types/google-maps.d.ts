@@ -1,4 +1,4 @@
-// Google Maps TypeScript definitions
+// ✅ Google Maps TypeScript definitions (your existing part)
 declare namespace google {
   namespace maps {
     class LatLng {
@@ -99,3 +99,43 @@ declare namespace google {
     }
   }
 }
+
+// ✅ Google Maps Loader Function
+export const loadGoogleMapsAPI = () => {
+  return new Promise((resolve, reject) => {
+    if (window.google && window.google.maps) {
+      resolve(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places`;
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = reject;
+    document.body.appendChild(script);
+  });
+};
+
+// ✅ Distance Calculator
+export const calculateDistance = (origin: google.maps.LatLng, destination: google.maps.LatLng) => {
+  return new Promise<{ distance: number }>((resolve, reject) => {
+    const service = new google.maps.DistanceMatrixService();
+    service.getDistanceMatrix(
+      {
+        origins: [origin],
+        destinations: [destination],
+        travelMode: google.maps.TravelMode.DRIVING,
+        unitSystem: google.maps.UnitSystem.METRIC,
+      },
+      (response, status) => {
+        if (status === google.maps.DistanceMatrixStatus.OK && response?.rows[0]?.elements[0]?.distance) {
+          const meters = response.rows[0].elements[0].distance.value;
+          resolve({ distance: meters / 1000 }); // km
+        } else {
+          reject("Distance calculation failed");
+        }
+      }
+    );
+  });
+};
