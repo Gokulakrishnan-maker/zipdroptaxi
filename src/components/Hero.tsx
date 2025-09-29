@@ -1,6 +1,7 @@
-import React from 'react';
+import React,{useState, useEffect, useRef } from 'react';
 import { ArrowRight, CheckCircle } from 'lucide-react';
 import { calculateFare } from '../utils/fareCalculator';
+import { calculateDistance } from "../utils/googleMaps"; 
 import { loadGoogleMapsAPI } from '../utils/googleMaps';
 
 const Hero = () => {
