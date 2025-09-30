@@ -24,6 +24,15 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Add middleware to set headers for all responses
+app.use((req, res, next) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+
 // Create nodemailer transporter
 let transporter;
 
@@ -521,10 +530,6 @@ const sendBookingNotifications = async (bookingData, bookingId) => {
 // Enquiry API endpoint
 app.post('/api/enquiry', async (req, res) => {
   try {
-    // Set proper headers first
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    
     console.log('📝 Received enquiry request');
     const enquiryData = req.body;
     const { pickupLocation, dropLocation, tripType, name, email, phone, date, time, carType } = enquiryData;
@@ -594,10 +599,6 @@ app.post('/api/enquiry', async (req, res) => {
 // Booking API endpoint
 app.post('/api/book', async (req, res) => {
   try {
-    // Set proper headers first
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    
     console.log('📝 Received booking confirmation request');
     const bookingData = req.body;
     const { pickupLocation, dropLocation, tripType, name, email, phone, date, time, carType, estimation, bookingId } = bookingData;
@@ -647,7 +648,6 @@ app.post('/api/book', async (req, res) => {
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
   return res.status(200).json({ 
     status: 'OK', 
     message: 'Server is running',
@@ -657,16 +657,12 @@ app.get('/api/health', (req, res) => {
 
 // Handle preflight requests
 app.options('*', (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   return res.status(200).end();
 });
 
 // Error handling middleware
 app.use((error, req, res, next) => {
   console.error('❌ Unhandled error:', error);
-  res.setHeader('Content-Type', 'application/json');
   return res.status(500).json({ 
     success: false, 
     message: 'Internal server error',

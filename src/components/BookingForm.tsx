@@ -167,7 +167,9 @@ const BookingForm = () => {
       
       // Check if response is ok
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('❌ Server error response:', errorText);
+        throw new Error(`Server error: ${response.status} - ${response.statusText}`);
       }
       
       // Check content type
@@ -198,9 +200,9 @@ const BookingForm = () => {
       let errorMessage = "❌ Something went wrong. Please try again.";
       
       if (error.message.includes('Failed to fetch')) {
-        errorMessage = "❌ Server is not running. Please contact support.";
-      } else if (error.message.includes('HTTP error')) {
-        errorMessage = "❌ Server error. Please try again later.";
+        errorMessage = "❌ Unable to connect to server. Please check your connection.";
+      } else if (error.message.includes('Server error')) {
+        errorMessage = `❌ ${error.message}`;
       } else if (error.message.includes('invalid response')) {
         errorMessage = "❌ Invalid response from server. Please contact support.";
       } else if (error.message) {
@@ -238,7 +240,9 @@ const BookingForm = () => {
 
       // Check if response is ok
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('❌ Server error response:', errorText);
+        throw new Error(`Server error: ${response.status} - ${response.statusText}`);
       }
       
       // Check content type
@@ -282,9 +286,9 @@ const BookingForm = () => {
       let errorMessage = "❌ Something went wrong. Please try again.";
       
       if (error.message.includes('Failed to fetch')) {
-        errorMessage = "❌ Server is not running. Please contact support.";
-      } else if (error.message.includes('HTTP error')) {
-        errorMessage = "❌ Server error. Please try again later.";
+        errorMessage = "❌ Unable to connect to server. Please check your connection.";
+      } else if (error.message.includes('Server error')) {
+        errorMessage = `❌ ${error.message}`;
       } else if (error.message.includes('invalid response')) {
         errorMessage = "❌ Invalid response from server. Please contact support.";
       } else if (error.message) {
