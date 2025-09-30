@@ -323,4 +323,16 @@ const BookingForm = () => {
               {/* Features */}
               <div className="grid grid-cols-3 gap-6 mb-8">
                 <div className="bg-white rounded-lg p-4 text-center shadow-md">
-                  <div className="text-2xl font-bold text-gray
+                  <div className="text-2xl font-bold text-gray-900">24/7</div>
+                  <p className="text-sm text-gray-600">Available</p>
+                </div>
+                <div className="bg-white rounded-lg p-4 text-center shadow-md">
+                  <div className="text-2xl font-bold text-gray-900">₹14/km</div>
+                  <p className="text-sm text-gray-600">Starting From</p>
+                </div>
+                <div className="bg-white rounded-lg p-4 text-center shadow-md">
+                  <div className="text-2xl font-bold text-gray-900">Safe</div>
+                  <p className="text-sm text-gray-600">& Reliable</p>
+                </div>
+              </div>
+            </div>
