@@ -140,6 +140,8 @@ const BookingForm = () => {
       const response = await axios.post("http://localhost:5000/api/enquiry", enquiryData);
 
       if (response.data.success) {
+        // Store booking ID for confirmation step
+        setEstimationData(prev => prev ? {...prev, bookingId: response.data.bookingId} : null);
         setBookingStep('estimation');
         setSubmitMessage("✅ Estimation calculated! Review details below.");
         setSubmitSuccess(true);
@@ -164,7 +166,8 @@ const BookingForm = () => {
       const bookingData = {
         ...formData,
         estimation: estimationData,
-        type: 'booking'
+        type: 'booking',
+        bookingId: estimationData?.bookingId
       };
 
       const response = await axios.post("http://localhost:5000/api/book", bookingData);
@@ -173,7 +176,7 @@ const BookingForm = () => {
         setBookingStep('confirmed');
         setSubmitSuccess(true);
         setSubmitMessage(
-          "🎉 Booking confirmed! You will receive confirmation via WhatsApp, Email, and Telegram."
+          `🎉 Booking confirmed! Booking ID: ${response.data.bookingId}. You will receive confirmation via WhatsApp, Email, and Telegram.`
         );
 
         // Open WhatsApp if link provided
