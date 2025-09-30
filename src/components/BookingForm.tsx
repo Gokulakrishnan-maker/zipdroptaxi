@@ -159,7 +159,7 @@ const BookingForm = () => {
       const response = await fetch("/api/enquiry", {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
         body: JSON.stringify(enquiryData)
@@ -230,7 +230,7 @@ const BookingForm = () => {
       const response = await fetch("/api/book", {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
         body: JSON.stringify(bookingData)
