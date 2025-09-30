@@ -705,7 +705,13 @@ app.use((error, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Happy Ride Drop Taxi Server running on port ${PORT}`);
+  console.log(`🔗 API Base URL: http://localhost:${PORT}`);
+  console.log(`📋 Available endpoints:`);
+  console.log(`   GET  http://localhost:${PORT}/api/health`);
+  console.log(`   POST http://localhost:${PORT}/api/enquiry`);
+  console.log(`   POST http://localhost:${PORT}/api/book`);
   console.log(`📧 Email configured: ${!!process.env.GMAIL_USER}`);
   console.log(`📱 Telegram configured: ${!!(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID)}`);
+  console.log('✅ Server ready to accept connections');
 });

@@ -237,7 +237,10 @@ const BookingForm = () => {
       };
 
       console.log('📡 Confirming booking...');
-      const response = await fetch("/api/book", {
+      const apiUrl = import.meta.env.DEV ? '/api/book' : `${window.location.origin}/api/book`;
+      console.log('📡 Booking API URL:', apiUrl);
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
