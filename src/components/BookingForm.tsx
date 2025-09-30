@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { MapPin, User, Phone, Calendar, Clock, Calculator, CheckCircle } from "lucide-react";
 import axios from "axios";
+import { initializeAutocomplete, calculateDistance } from "../utils/googleMaps";
 
 interface BookingFormData {
   pickupLocation: string;
@@ -32,6 +33,8 @@ const BookingForm = () => {
   const [showEstimation, setShowEstimation] = useState(false);
   const [estimationData, setEstimationData] = useState<EstimationData | null>(null);
   const [bookingStep, setBookingStep] = useState<'form' | 'estimation' | 'confirmed'>('form');
+  const [pickupAutocomplete, setPickupAutocomplete] = useState<any>(null);
+  const [dropAutocomplete, setDropAutocomplete] = useState<any>(null);
 
   const {
     register,
@@ -56,24 +59,19 @@ const BookingForm = () => {
     { value: "innova", label: "Innova (7 Seats)", price: "₹20/km", rate: 20 },
   ];
 
-  const calculateEstimation = (data: BookingFormData): EstimationData => {
-    // Mock distance calculation (in real app, use Google Distance Matrix API)
-    const mockDistance = Math.floor(Math.random() * 400) + 100; // 100-500 km
+  const calculateEstimation = async (data: BookingFormData): Promise<EstimationData> => {
+    // Use Google Maps Distance Matrix API or fallback to mock
+    const { distance, duration } = await calculateDistance(data.pickupLocation, data.dropLocation);
     const selectedCar = carTypes.find(car => car.value === data.carType);
     const rate = selectedCar?.rate || 14;
     
     const driverBata = data.tripType === 'one-way' ? 400 : 500;
-    const baseFare = mockDistance * rate;
+    const baseFare = distance * rate;
     const totalFare = baseFare + driverBata;
-    
-    const duration = Math.floor(mockDistance / 60 * 60); // Assuming 60 km/h average
-    const hours = Math.floor(duration / 60);
-    const minutes = duration % 60;
-    const durationStr = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
 
     return {
-      distance: mockDistance,
-      duration: durationStr,
+      distance,
+      duration,
       baseFare,
       totalFare,
       carType: data.carType,
@@ -90,7 +88,7 @@ const BookingForm = () => {
       console.log('📝 Submitting estimation request');
       
       // Calculate estimation
-      const estimation = calculateEstimation(data);
+      const estimation = await calculateEstimation(data);
       setEstimationData(estimation);
       
       // Send enquiry to server
@@ -216,6 +214,44 @@ const BookingForm = () => {
     reset();
   };
 
+  // Initialize Google Places Autocomplete
+  React.useEffect(() => {
+    const initAutocomplete = () => {
+      const pickupInput = document.querySelector('input[name="pickupLocation"]') as HTMLInputElement;
+      const dropInput = document.querySelector('input[name="dropLocation"]') as HTMLInputElement;
+      
+      if (pickupInput && !pickupAutocomplete) {
+        const pickup = initializeAutocomplete(pickupInput, (place) => {
+          // Update form value
+          pickupInput.value = place;
+        });
+        setPickupAutocomplete(pickup);
+      }
+      
+      if (dropInput && !dropAutocomplete) {
+        const drop = initializeAutocomplete(dropInput, (place) => {
+          // Update form value
+          dropInput.value = place;
+        });
+        setDropAutocomplete(drop);
+      }
+    };
+
+    // Wait for Google Maps API to load
+    if (window.google && window.google.maps) {
+      initAutocomplete();
+    } else {
+      const checkGoogleMaps = setInterval(() => {
+        if (window.google && window.google.maps) {
+          initAutocomplete();
+          clearInterval(checkGoogleMaps);
+        }
+      }, 100);
+      
+      // Cleanup interval after 10 seconds
+      setTimeout(() => clearInterval(checkGoogleMaps), 10000);
+    }
+  }, [pickupAutocomplete, dropAutocomplete]);
   return (
     <>
       {/* Hero + Booking Form */}
