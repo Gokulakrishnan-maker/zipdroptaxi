@@ -442,20 +442,24 @@ const sendBookingNotifications = async (bookingData, bookingId) => {
 // Enquiry API endpoint
 app.post('/api/enquiry', async (req, res) => {
   try {
+    console.log('Received enquiry request:', req.body);
     const enquiryData = req.body;
     const { pickupLocation, dropLocation, tripType, name, email, phone, date, time, carType } = enquiryData;
 
     // Validate required fields
     if (!pickupLocation || !dropLocation || !tripType || !name || !email || !phone || !date || !time || !carType) {
+      console.log('Validation failed - missing fields');
       return res.status(400).json({ 
         success: false, 
         message: 'All fields are required' 
       });
     }
 
+    console.log('Sending enquiry notifications...');
     // Send notifications
     const { whatsappLink, telegramLink, bookingId } = await sendEnquiryNotifications(enquiryData);
 
+    console.log('Enquiry processed successfully:', bookingId);
     res.json({
       success: true,
       message: 'Enquiry submitted successfully!',
@@ -468,7 +472,8 @@ app.post('/api/enquiry', async (req, res) => {
     console.error('Error processing enquiry:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error. Please try again later.'
+      message: 'Server error. Please try again later.',
+      error: error.message
     });
   }
 });

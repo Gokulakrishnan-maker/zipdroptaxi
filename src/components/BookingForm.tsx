@@ -124,8 +124,11 @@ const BookingForm = () => {
   const onGetEstimation = async (data: BookingFormData) => {
     setIsSubmitting(true);
     setSubmitMessage("");
+    setSubmitSuccess(false);
 
     try {
+      console.log('Submitting estimation request:', data);
+      
       // Calculate estimation
       const estimation = calculateEstimation(data);
       setEstimationData(estimation);
@@ -137,20 +140,27 @@ const BookingForm = () => {
         type: 'enquiry'
       };
 
+      console.log('Sending to API:', enquiryData);
       const response = await axios.post("http://localhost:5000/api/enquiry", enquiryData);
+      console.log('API Response:', response.data);
 
       if (response.data.success) {
         // Store booking ID for confirmation step
-        setEstimationData(prev => prev ? {...prev, bookingId: response.data.bookingId} : null);
+        setEstimationData(prev => prev ? {...prev, bookingId: response.data.bookingId} : estimation);
         setBookingStep('estimation');
         setSubmitMessage("✅ Estimation calculated! Review details below.");
         setSubmitSuccess(true);
+      } else {
+        setSubmitSuccess(false);
+        setSubmitMessage(response.data.message || "❌ Failed to get estimation.");
       }
     } catch (error: any) {
+      console.error('Estimation error:', error);
       setSubmitSuccess(false);
       setSubmitMessage(
         error.response?.data?.message ||
-          "❌ Something went wrong. Please try again."
+        error.response?.data?.error ||
+        "❌ Something went wrong. Please try again."
       );
     } finally {
       setIsSubmitting(false);
@@ -442,7 +452,7 @@ const BookingForm = () => {
                         <button
                           type="submit"
                           disabled={isSubmitting}
-                          className="w-full bg-yellow-500 text-gray-900 py-3 rounded-lg font-semibold hover:bg-yellow-600 transition-colors flex items-center justify-center space-x-2"
+                          className="w-full bg-yellow-500 text-gray-900 py-3 rounded-lg font-semibold hover:bg-yellow-600 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <Calculator className="h-4 w-4" />
                           <span>{isSubmitting ? "Calculating..." : "Get Estimation"}</span>
