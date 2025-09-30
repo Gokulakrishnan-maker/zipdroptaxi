@@ -37,6 +37,8 @@ Create a `.env` file in the root directory:
 ```env
 GMAIL_USER=happyridedroptaxi@gmail.com
 GMAIL_PASS=your-app-password
+TELEGRAM_BOT_TOKEN=your-telegram-bot-token
+TELEGRAM_CHAT_ID=your-telegram-chat-id
 PORT=5000
 ```
 
@@ -47,6 +49,17 @@ PORT=5000
    - Security → 2-Step Verification → App passwords
    - Generate password for "Mail"
    - Use this password in `.env` file
+
+### 3. Telegram Bot Setup
+1. Create a Telegram bot:
+   - Message @BotFather on Telegram
+   - Send `/newbot` command
+   - Follow instructions to create your bot
+   - Copy the bot token
+2. Get your chat ID:
+   - Add your bot to a group or get your personal chat ID
+   - Use @userinfobot to get your chat ID
+   - Add both values to `.env` file
 
 ### 3. Install Dependencies
 ```bash

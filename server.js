@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
+import axios from 'axios';
 
 dotenv.config();
 
@@ -52,6 +53,31 @@ const getCarRate = (carType) => {
     'innova': '₹20/km'
   };
   return rates[carType] || '₹14/km';
+};
+
+// Send Telegram notification
+const sendTelegramNotification = async (message) => {
+  try {
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_CHAT_ID;
+    
+    if (!botToken || !chatId) {
+      console.log('Telegram bot token or chat ID not configured');
+      return;
+    }
+
+    const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+    
+    await axios.post(telegramUrl, {
+      chat_id: chatId,
+      text: message,
+      parse_mode: 'HTML'
+    });
+    
+    console.log('Telegram notification sent successfully');
+  } catch (error) {
+    console.error('Error sending Telegram notification:', error.message);
+  }
 };
 
 // Validate distance based on trip type
@@ -128,14 +154,14 @@ const generateBookingWhatsAppLink = (bookingDetails, bookingId) => {
   return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 };
 
-// Generate Telegram link for enquiry
-const generateEnquiryTelegramLink = (bookingDetails, bookingId) => {
+// Generate Telegram message for enquiry
+const generateEnquiryTelegramMessage = (bookingDetails, bookingId) => {
   const currentTime = getCurrentDateTime();
   const rate = getCarRate(bookingDetails.carType);
   
-  const message = `🚖 BOOKING ENQUIRY - happyRideDroptaxi
+  return `🚖 <b>BOOKING ENQUIRY</b> - happyRideDroptaxi
 
-📋 Trip Details:
+📋 <b>Trip Details:</b>
 • Booking ID: ${bookingId}
 • Name: ${bookingDetails.name}
 • Phone: ${bookingDetails.phone}
@@ -154,21 +180,18 @@ const generateEnquiryTelegramLink = (bookingDetails, bookingId) => {
 ⏰ Enquiry Time: ${currentTime}
 
 📞 Contact: +91 90875 20500`;
-
-  const telegramBot = 'happyridedroptaxi_bot';
-  return `https://t.me/${telegramBot}?text=${encodeURIComponent(message)}`;
 };
 
-// Generate Telegram link for booking confirmation
-const generateBookingTelegramLink = (bookingDetails, bookingId) => {
+// Generate Telegram message for booking confirmation
+const generateBookingTelegramMessage = (bookingDetails, bookingId) => {
   const currentTime = getCurrentDateTime();
   const rate = getCarRate(bookingDetails.carType);
   
-  const message = `🚖 BOOKING CONFIRMATION - happyRideDroptaxi
+  return `🚖 <b>BOOKING CONFIRMATION</b> - happyRideDroptaxi
 
-✅ CONFIRMED BOOKING
+✅ <b>CONFIRMED BOOKING</b>
 
-📋 Trip Details:
+📋 <b>Trip Details:</b>
 • Booking ID: ${bookingId}
 • Name: ${bookingDetails.name}
 • Phone: ${bookingDetails.phone}
@@ -187,9 +210,6 @@ const generateBookingTelegramLink = (bookingDetails, bookingId) => {
 ⏰ Confirmed Time: ${currentTime}
 
 📞 Contact: +91 90875 20500`;
-
-  const telegramBot = 'happyridedroptaxi_bot';
-  return `https://t.me/${telegramBot}?text=${encodeURIComponent(message)}`;
 };
 
 // Send notifications for enquiry
@@ -292,8 +312,12 @@ const sendEnquiryNotifications = async (bookingData) => {
   await transporter.sendMail(adminMailOptions);
   await transporter.sendMail(customerMailOptions);
 
+  // Send Telegram notification
+  const telegramMessage = generateEnquiryTelegramMessage(bookingData, bookingId);
+  await sendTelegramNotification(telegramMessage);
+
   // Generate notification links
-  const telegramLink = generateEnquiryTelegramLink(bookingData, bookingId);
+  const telegramLink = `https://t.me/happyridedroptaxi_bot`;
 
   return { whatsappLink, telegramLink, bookingId };
 };
@@ -404,9 +428,13 @@ const sendBookingNotifications = async (bookingData, bookingId) => {
   await transporter.sendMail(adminMailOptions);
   await transporter.sendMail(customerMailOptions);
 
+  // Send Telegram notification
+  const telegramMessage = generateBookingTelegramMessage(bookingData, bookingId);
+  await sendTelegramNotification(telegramMessage);
+
   // Generate notification links
   const whatsappLink = generateBookingWhatsAppLink(bookingData, bookingId);
-  const telegramLink = generateBookingTelegramLink(bookingData, bookingId);
+  const telegramLink = `https://t.me/happyridedroptaxi_bot`;
 
   return { whatsappLink, telegramLink };
 };
