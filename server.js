@@ -3,23 +3,42 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
 import axios from 'axios';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// Enhanced CORS configuration
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Create nodemailer transporter
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS
-  }
-});
+let transporter;
+try {
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_PASS
+    }
+  });
+  console.log('✅ Email transporter configured successfully');
+} catch (error) {
+  console.error('❌ Email configuration error:', error.message);
+}
 
 // Generate unique booking ID
 const generateBookingId = () => {
@@ -62,21 +81,24 @@ const sendTelegramNotification = async (message) => {
     const chatId = process.env.TELEGRAM_CHAT_ID;
     
     if (!botToken || !chatId) {
-      console.log('Telegram bot token or chat ID not configured');
+      console.log('⚠️ Telegram bot token or chat ID not configured');
       return;
     }
 
     const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
     
-    await axios.post(telegramUrl, {
+    const response = await axios.post(telegramUrl, {
       chat_id: chatId,
       text: message,
       parse_mode: 'HTML'
+    }, {
+      timeout: 10000 // 10 second timeout
     });
     
-    console.log('Telegram notification sent successfully');
+    console.log('✅ Telegram notification sent successfully');
+    return response.data;
   } catch (error) {
-    console.error('Error sending Telegram notification:', error.message);
+    console.error('❌ Telegram notification error:', error.response?.data || error.message);
   }
 };
 
@@ -214,10 +236,18 @@ const generateBookingTelegramMessage = (bookingDetails, bookingId) => {
 
 // Send notifications for enquiry
 const sendEnquiryNotifications = async (bookingData) => {
+  console.log('📧 Starting enquiry notifications...');
   const { name, email, phone, pickupLocation, dropLocation, carType, date, time, tripType, estimation } = bookingData;
   const currentTime = getCurrentDateTime();
   const rate = getCarRate(carType);
   const { link: whatsappLink, bookingId } = generateEnquiryWhatsAppLink(bookingData);
+
+  const results = {
+    email: { admin: false, customer: false },
+    telegram: false,
+    whatsappLink,
+    bookingId
+  };
 
   // Admin email for enquiry
   const adminMailOptions = {
@@ -308,25 +338,47 @@ const sendEnquiryNotifications = async (bookingData) => {
     `
   };
 
-  // Send emails
-  await transporter.sendMail(adminMailOptions);
-  await transporter.sendMail(customerMailOptions);
+  // Send emails with error handling
+  try {
+    if (transporter) {
+      await transporter.sendMail(adminMailOptions);
+      results.email.admin = true;
+      console.log('✅ Admin enquiry email sent');
+      
+      await transporter.sendMail(customerMailOptions);
+      results.email.customer = true;
+      console.log('✅ Customer enquiry email sent');
+    } else {
+      console.log('⚠️ Email transporter not available');
+    }
+  } catch (error) {
+    console.error('❌ Email sending error:', error.message);
+  }
 
   // Send Telegram notification
-  const telegramMessage = generateEnquiryTelegramMessage(bookingData, bookingId);
-  await sendTelegramNotification(telegramMessage);
+  try {
+    const telegramMessage = generateEnquiryTelegramMessage(bookingData, bookingId);
+    await sendTelegramNotification(telegramMessage);
+    results.telegram = true;
+  } catch (error) {
+    console.error('❌ Telegram enquiry error:', error.message);
+  }
 
-  // Generate notification links
-  const telegramLink = `https://t.me/happyridedroptaxi_bot`;
-
-  return { whatsappLink, telegramLink, bookingId };
+  console.log('📧 Enquiry notifications completed:', results);
+  return { whatsappLink, telegramLink: `https://t.me/happyridedroptaxi_bot`, bookingId, results };
 };
 
 // Send notifications for booking confirmation
 const sendBookingNotifications = async (bookingData, bookingId) => {
+  console.log('📧 Starting booking confirmation notifications...');
   const { name, email, phone, pickupLocation, dropLocation, carType, date, time, tripType, estimation } = bookingData;
   const currentTime = getCurrentDateTime();
   const rate = getCarRate(carType);
+
+  const results = {
+    email: { admin: false, customer: false },
+    telegram: false
+  };
 
   // Admin email for booking confirmation
   const adminMailOptions = {
@@ -424,52 +476,100 @@ const sendBookingNotifications = async (bookingData, bookingId) => {
     `
   };
 
-  // Send emails
-  await transporter.sendMail(adminMailOptions);
-  await transporter.sendMail(customerMailOptions);
+  // Send emails with error handling
+  try {
+    if (transporter) {
+      await transporter.sendMail(adminMailOptions);
+      results.email.admin = true;
+      console.log('✅ Admin confirmation email sent');
+      
+      await transporter.sendMail(customerMailOptions);
+      results.email.customer = true;
+      console.log('✅ Customer confirmation email sent');
+    } else {
+      console.log('⚠️ Email transporter not available');
+    }
+  } catch (error) {
+    console.error('❌ Email sending error:', error.message);
+  }
 
   // Send Telegram notification
-  const telegramMessage = generateBookingTelegramMessage(bookingData, bookingId);
-  await sendTelegramNotification(telegramMessage);
+  try {
+    const telegramMessage = generateBookingTelegramMessage(bookingData, bookingId);
+    await sendTelegramNotification(telegramMessage);
+    results.telegram = true;
+  } catch (error) {
+    console.error('❌ Telegram confirmation error:', error.message);
+  }
 
   // Generate notification links
   const whatsappLink = generateBookingWhatsAppLink(bookingData, bookingId);
-  const telegramLink = `https://t.me/happyridedroptaxi_bot`;
 
-  return { whatsappLink, telegramLink };
+  console.log('📧 Confirmation notifications completed:', results);
+  return { whatsappLink, telegramLink: `https://t.me/happyridedroptaxi_bot`, results };
 };
 
 // Enquiry API endpoint
 app.post('/api/enquiry', async (req, res) => {
   try {
-    console.log('Received enquiry request:', req.body);
+    console.log('📝 Received enquiry request');
     const enquiryData = req.body;
     const { pickupLocation, dropLocation, tripType, name, email, phone, date, time, carType } = enquiryData;
 
     // Validate required fields
     if (!pickupLocation || !dropLocation || !tripType || !name || !email || !phone || !date || !time || !carType) {
-      console.log('Validation failed - missing fields');
+      console.log('❌ Validation failed - missing fields');
       return res.status(400).json({ 
         success: false, 
-        message: 'All fields are required' 
+        message: 'All fields are required',
+        missingFields: {
+          pickupLocation: !pickupLocation,
+          dropLocation: !dropLocation,
+          tripType: !tripType,
+          name: !name,
+          email: !email,
+          phone: !phone,
+          date: !date,
+          time: !time,
+          carType: !carType
+        }
       });
     }
 
-    console.log('Sending enquiry notifications...');
-    // Send notifications
-    const { whatsappLink, telegramLink, bookingId } = await sendEnquiryNotifications(enquiryData);
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter a valid email address'
+      });
+    }
 
-    console.log('Enquiry processed successfully:', bookingId);
+    // Validate phone format
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter a valid 10-digit phone number'
+      });
+    }
+
+    console.log('✅ Validation passed, sending notifications...');
+    // Send notifications
+    const { whatsappLink, telegramLink, bookingId, results } = await sendEnquiryNotifications(enquiryData);
+
+    console.log('✅ Enquiry processed successfully:', bookingId);
     res.json({
       success: true,
       message: 'Enquiry submitted successfully!',
       whatsappLink,
       telegramLink,
-      bookingId
+      bookingId,
+      notificationResults: results
     });
 
   } catch (error) {
-    console.error('Error processing enquiry:', error);
+    console.error('❌ Error processing enquiry:', error);
     res.status(500).json({
       success: false,
       message: 'Server error. Please try again later.',
@@ -481,6 +581,7 @@ app.post('/api/enquiry', async (req, res) => {
 // Booking API endpoint
 app.post('/api/book', async (req, res) => {
   try {
+    console.log('📝 Received booking confirmation request');
     const bookingData = req.body;
     const { pickupLocation, dropLocation, tripType, name, email, phone, date, time, carType, estimation, bookingId } = bookingData;
 
@@ -503,19 +604,27 @@ app.post('/api/book', async (req, res) => {
       });
     }
 
+    console.log('✅ Booking validation passed, sending notifications...');
     // Send notifications
-    const { whatsappLink, telegramLink } = await sendBookingNotifications(bookingData, bookingId);
+    const { whatsappLink, telegramLink, results } = await sendBookingNotifications(bookingData, bookingId);
 
+    console.log('✅ Booking confirmed successfully:', bookingId);
     res.json({
       success: true,
       message: 'Booking confirmed successfully!',
       whatsappLink,
       telegramLink,
-      bookingId
+      bookingId,
+      notificationResults: results
     });
 
   } catch (error) {
-    console.error('Error processing booking:', error);
+    console.error('❌ Error processing booking:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.',
+      error: error.message
+    });
     res.status(500).json({
       success: false,
       message: 'Server error. Please try again later.'
@@ -528,6 +637,14 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
 });
 
+// Error handling middleware
+app.use((error, req, res, next) => {
+  console.error('❌ Unhandled error:', error);
+  res.status(500).json({ success: false, message: 'Internal server error' });
+});
+
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📧 Email configured: ${!!process.env.GMAIL_USER}`);
+  console.log(`📱 Telegram configured: ${!!(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID)}`);
 });

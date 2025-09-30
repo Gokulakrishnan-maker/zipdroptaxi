@@ -127,7 +127,7 @@ const BookingForm = () => {
     setSubmitSuccess(false);
 
     try {
-      console.log('Submitting estimation request:', data);
+      console.log('📝 Submitting estimation request');
       
       // Calculate estimation
       const estimation = calculateEstimation(data);
@@ -140,28 +140,44 @@ const BookingForm = () => {
         type: 'enquiry'
       };
 
-      console.log('Sending to API:', enquiryData);
-      const response = await axios.post("http://localhost:5000/api/enquiry", enquiryData);
-      console.log('API Response:', response.data);
+      console.log('📡 Sending to API...');
+      const response = await axios.post("http://localhost:5000/api/enquiry", enquiryData, {
+        timeout: 30000, // 30 second timeout
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log('✅ API Response received:', response.data);
 
       if (response.data.success) {
         // Store booking ID for confirmation step
-        setEstimationData(prev => prev ? {...prev, bookingId: response.data.bookingId} : estimation);
+        setEstimationData(prev => prev ? {...prev, bookingId: response.data.bookingId} : {...estimation, bookingId: response.data.bookingId});
         setBookingStep('estimation');
-        setSubmitMessage("✅ Estimation calculated! Review details below.");
+        setSubmitMessage(`✅ Estimation calculated! Booking ID: ${response.data.bookingId}. Review details below.`);
         setSubmitSuccess(true);
       } else {
         setSubmitSuccess(false);
-        setSubmitMessage(response.data.message || "❌ Failed to get estimation.");
+        setSubmitMessage(response.data.message || "❌ Failed to get estimation. Please try again.");
       }
     } catch (error: any) {
-      console.error('Estimation error:', error);
+      console.error('❌ Estimation error:', error);
       setSubmitSuccess(false);
-      setSubmitMessage(
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        "❌ Something went wrong. Please try again."
-      );
+      
+      let errorMessage = "❌ Something went wrong. Please try again.";
+      
+      if (error.code === 'ECONNREFUSED') {
+        errorMessage = "❌ Server is not running. Please contact support.";
+      } else if (error.code === 'ECONNABORTED') {
+        errorMessage = "❌ Request timeout. Please check your connection and try again.";
+      } else if (error.response?.status === 400) {
+        errorMessage = error.response.data?.message || "❌ Please check your input and try again.";
+      } else if (error.response?.status >= 500) {
+        errorMessage = "❌ Server error. Please try again later.";
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      setSubmitMessage(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -180,13 +196,19 @@ const BookingForm = () => {
         bookingId: estimationData?.bookingId
       };
 
-      const response = await axios.post("http://localhost:5000/api/book", bookingData);
+      console.log('📡 Confirming booking...');
+      const response = await axios.post("http://localhost:5000/api/book", bookingData, {
+        timeout: 30000,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
       if (response.data.success) {
         setBookingStep('confirmed');
         setSubmitSuccess(true);
         setSubmitMessage(
-          `🎉 Booking confirmed! Booking ID: ${response.data.bookingId}. You will receive confirmation via WhatsApp, Email, and Telegram.`
+          `🎉 Booking confirmed! Booking ID: ${response.data.bookingId}. Notifications sent via WhatsApp, Email, and Telegram.`
         );
 
         // Open WhatsApp if link provided
@@ -200,14 +222,27 @@ const BookingForm = () => {
           setBookingStep('form');
           setEstimationData(null);
           setSubmitMessage("");
+          setSubmitSuccess(false);
         }, 5000);
+      } else {
+        setSubmitSuccess(false);
+        setSubmitMessage(response.data.message || "❌ Failed to confirm booking. Please try again.");
       }
     } catch (error: any) {
+      console.error('❌ Booking confirmation error:', error);
       setSubmitSuccess(false);
-      setSubmitMessage(
-        error.response?.data?.message ||
-          "❌ Something went wrong. Please try again."
-      );
+      
+      let errorMessage = "❌ Something went wrong. Please try again.";
+      
+      if (error.code === 'ECONNREFUSED') {
+        errorMessage = "❌ Server is not running. Please contact support.";
+      } else if (error.code === 'ECONNABORTED') {
+        errorMessage = "❌ Request timeout. Please check your connection and try again.";
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      setSubmitMessage(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -217,6 +252,7 @@ const BookingForm = () => {
     setBookingStep('form');
     setEstimationData(null);
     setSubmitMessage("");
+    setSubmitSuccess(false);
     reset();
   };
 
@@ -452,11 +488,19 @@ const BookingForm = () => {
                         <button
                           type="submit"
                           disabled={isSubmitting}
-                          className="w-full bg-yellow-500 text-gray-900 py-3 rounded-lg font-semibold hover:bg-yellow-600 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full bg-yellow-500 text-gray-900 py-3 rounded-lg font-semibold hover:bg-yellow-600 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-yellow-500"
                         >
                           <Calculator className="h-4 w-4" />
                           <span>{isSubmitting ? "Calculating..." : "Get Estimation"}</span>
                         </button>
+                        
+                        {/* Debug Info */}
+                        {process.env.NODE_ENV === 'development' && (
+                          <div className="mt-2 text-xs text-gray-500">
+                            <p>Server: http://localhost:5000</p>
+                            <p>Status: {isSubmitting ? 'Processing...' : 'Ready'}</p>
+                          </div>
+                        )}
                       </>
                     )}
                   </form>
