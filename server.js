@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
-import axios from 'axios';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -16,7 +15,7 @@ const PORT = process.env.PORT || 5000;
 
 // Enhanced CORS configuration
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'],
+  origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173', 'https://localhost:5173'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -27,17 +26,23 @@ app.use(express.urlencoded({ extended: true }));
 
 // Create nodemailer transporter
 let transporter;
-try {
-  transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_PASS
-    }
-  });
-  console.log('✅ Email transporter configured successfully');
-} catch (error) {
-  console.error('❌ Email configuration error:', error.message);
+
+// Only configure email if credentials are provided
+if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
+  try {
+    transporter = nodemailer.createTransporter({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS
+      }
+    });
+    console.log('✅ Email transporter configured successfully');
+  } catch (error) {
+    console.error('❌ Email configuration error:', error.message);
+  }
+} else {
+  console.log('⚠️ Email credentials not provided - email notifications disabled');
 }
 
 // Generate unique booking ID
@@ -85,20 +90,24 @@ const sendTelegramNotification = async (message) => {
       return;
     }
 
+    // Use fetch instead of axios
     const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
-    
-    const response = await axios.post(telegramUrl, {
-      chat_id: chatId,
-      text: message,
-      parse_mode: 'HTML'
-    }, {
-      timeout: 10000 // 10 second timeout
+    const response = await fetch(telegramUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: message,
+        parse_mode: 'HTML'
+      })
     });
     
     console.log('✅ Telegram notification sent successfully');
-    return response.data;
+    return await response.json();
   } catch (error) {
-    console.error('❌ Telegram notification error:', error.response?.data || error.message);
+    console.error('❌ Telegram notification error:', error.message);
   }
 };
 

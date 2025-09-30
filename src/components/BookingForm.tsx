@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { MapPin, User, Phone, Calendar, Clock, Calculator, CheckCircle } from "lucide-react";
-import axios from "axios";
-import { initializeAutocomplete, calculateDistance } from "../utils/googleMaps";
 
 interface BookingFormData {
   pickupLocation: string;
@@ -33,8 +31,6 @@ const BookingForm = () => {
   const [showEstimation, setShowEstimation] = useState(false);
   const [estimationData, setEstimationData] = useState<EstimationData | null>(null);
   const [bookingStep, setBookingStep] = useState<'form' | 'estimation' | 'confirmed'>('form');
-  const [pickupAutocomplete, setPickupAutocomplete] = useState<any>(null);
-  const [dropAutocomplete, setDropAutocomplete] = useState<any>(null);
 
   const {
     register,
@@ -60,17 +56,22 @@ const BookingForm = () => {
   ];
 
   const calculateEstimation = async (data: BookingFormData): Promise<EstimationData> => {
-    // Use Google Maps Distance Matrix API or fallback to mock
-    const { distance, duration } = await calculateDistance(data.pickupLocation, data.dropLocation);
+    // Mock distance calculation for demo
+    const mockDistance = Math.floor(Math.random() * 400) + 130; // 130-530 km
+    const mockDuration = Math.floor(mockDistance / 60); // Rough duration in hours
+    const hours = Math.floor(mockDuration);
+    const minutes = Math.floor((mockDuration % 1) * 60);
+    const duration = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+    
     const selectedCar = carTypes.find(car => car.value === data.carType);
     const rate = selectedCar?.rate || 14;
     
     const driverBata = data.tripType === 'one-way' ? 400 : 500;
-    const baseFare = distance * rate;
+    const baseFare = mockDistance * rate;
     const totalFare = baseFare + driverBata;
 
     return {
-      distance,
+      distance: mockDistance,
       duration,
       baseFare,
       totalFare,
@@ -99,23 +100,26 @@ const BookingForm = () => {
       };
 
       console.log('📡 Sending to API...');
-      const response = await axios.post("http://localhost:5000/api/enquiry", enquiryData, {
-        timeout: 30000, // 30 second timeout
+      const response = await fetch("/api/enquiry", {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify(enquiryData)
       });
-      console.log('✅ API Response received:', response.data);
+      
+      const responseData = await response.json();
+      console.log('✅ API Response received:', responseData);
 
-      if (response.data.success) {
+      if (responseData.success) {
         // Store booking ID for confirmation step
-        setEstimationData(prev => prev ? {...prev, bookingId: response.data.bookingId} : {...estimation, bookingId: response.data.bookingId});
+        setEstimationData(prev => prev ? {...prev, bookingId: responseData.bookingId} : {...estimation, bookingId: responseData.bookingId});
         setBookingStep('estimation');
-        setSubmitMessage(`✅ Estimation calculated! Booking ID: ${response.data.bookingId}. Review details below.`);
+        setSubmitMessage(`✅ Estimation calculated! Booking ID: ${responseData.bookingId}. Review details below.`);
         setSubmitSuccess(true);
       } else {
         setSubmitSuccess(false);
-        setSubmitMessage(response.data.message || "❌ Failed to get estimation. Please try again.");
+        setSubmitMessage(responseData.message || "❌ Failed to get estimation. Please try again.");
       }
     } catch (error: any) {
       console.error('❌ Estimation error:', error);
@@ -123,16 +127,10 @@ const BookingForm = () => {
       
       let errorMessage = "❌ Something went wrong. Please try again.";
       
-      if (error.code === 'ECONNREFUSED') {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
         errorMessage = "❌ Server is not running. Please contact support.";
-      } else if (error.code === 'ECONNABORTED') {
-        errorMessage = "❌ Request timeout. Please check your connection and try again.";
-      } else if (error.response?.status === 400) {
-        errorMessage = error.response.data?.message || "❌ Please check your input and try again.";
-      } else if (error.response?.status >= 500) {
-        errorMessage = "❌ Server error. Please try again later.";
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = `❌ ${error.message}`;
       }
       
       setSubmitMessage(errorMessage);
@@ -155,23 +153,26 @@ const BookingForm = () => {
       };
 
       console.log('📡 Confirming booking...');
-      const response = await axios.post("http://localhost:5000/api/book", bookingData, {
-        timeout: 30000,
+      const response = await fetch("/api/book", {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify(bookingData)
       });
 
-      if (response.data.success) {
+      const responseData = await response.json();
+
+      if (responseData.success) {
         setBookingStep('confirmed');
         setSubmitSuccess(true);
         setSubmitMessage(
-          `🎉 Booking confirmed! Booking ID: ${response.data.bookingId}. Notifications sent via WhatsApp, Email, and Telegram.`
+          `🎉 Booking confirmed! Booking ID: ${responseData.bookingId}. Notifications sent via WhatsApp, Email, and Telegram.`
         );
 
         // Open WhatsApp if link provided
-        if (response.data.whatsappLink) {
-          window.open(response.data.whatsappLink, "_blank");
+        if (responseData.whatsappLink) {
+          window.open(responseData.whatsappLink, "_blank");
         }
 
         // Reset form after 5 seconds
@@ -184,7 +185,7 @@ const BookingForm = () => {
         }, 5000);
       } else {
         setSubmitSuccess(false);
-        setSubmitMessage(response.data.message || "❌ Failed to confirm booking. Please try again.");
+        setSubmitMessage(responseData.message || "❌ Failed to confirm booking. Please try again.");
       }
     } catch (error: any) {
       console.error('❌ Booking confirmation error:', error);
@@ -192,12 +193,10 @@ const BookingForm = () => {
       
       let errorMessage = "❌ Something went wrong. Please try again.";
       
-      if (error.code === 'ECONNREFUSED') {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
         errorMessage = "❌ Server is not running. Please contact support.";
-      } else if (error.code === 'ECONNABORTED') {
-        errorMessage = "❌ Request timeout. Please check your connection and try again.";
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = `❌ ${error.message}`;
       }
       
       setSubmitMessage(errorMessage);
@@ -214,44 +213,6 @@ const BookingForm = () => {
     reset();
   };
 
-  // Initialize Google Places Autocomplete
-  React.useEffect(() => {
-    const initAutocomplete = () => {
-      const pickupInput = document.querySelector('input[name="pickupLocation"]') as HTMLInputElement;
-      const dropInput = document.querySelector('input[name="dropLocation"]') as HTMLInputElement;
-      
-      if (pickupInput && !pickupAutocomplete) {
-        const pickup = initializeAutocomplete(pickupInput, (place) => {
-          // Update form value
-          pickupInput.value = place;
-        });
-        setPickupAutocomplete(pickup);
-      }
-      
-      if (dropInput && !dropAutocomplete) {
-        const drop = initializeAutocomplete(dropInput, (place) => {
-          // Update form value
-          dropInput.value = place;
-        });
-        setDropAutocomplete(drop);
-      }
-    };
-
-    // Wait for Google Maps API to load
-    if (window.google && window.google.maps) {
-      initAutocomplete();
-    } else {
-      const checkGoogleMaps = setInterval(() => {
-        if (window.google && window.google.maps) {
-          initAutocomplete();
-          clearInterval(checkGoogleMaps);
-        }
-      }, 100);
-      
-      // Cleanup interval after 10 seconds
-      setTimeout(() => clearInterval(checkGoogleMaps), 10000);
-    }
-  }, [pickupAutocomplete, dropAutocomplete]);
   return (
     <>
       {/* Hero + Booking Form */}
