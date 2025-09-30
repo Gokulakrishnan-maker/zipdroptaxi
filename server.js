@@ -520,6 +520,9 @@ const sendBookingNotifications = async (bookingData, bookingId) => {
 
 // Enquiry API endpoint
 app.post('/api/enquiry', async (req, res) => {
+  // Set proper headers
+  res.setHeader('Content-Type', 'application/json');
+  
   try {
     console.log('📝 Received enquiry request');
     const enquiryData = req.body;
@@ -589,6 +592,9 @@ app.post('/api/enquiry', async (req, res) => {
 
 // Booking API endpoint
 app.post('/api/book', async (req, res) => {
+  // Set proper headers
+  res.setHeader('Content-Type', 'application/json');
+  
   try {
     console.log('📝 Received booking confirmation request');
     const bookingData = req.body;
@@ -643,6 +649,7 @@ app.post('/api/book', async (req, res) => {
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
   res.json({ status: 'OK', message: 'Server is running' });
 });
 

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { MapPin, User, Phone, Calendar, Clock, Calculator, CheckCircle } from "lucide-react";
+import { initializeAutocomplete, calculateDistance } from '../utils/googleMaps';
 
 interface BookingFormData {
   pickupLocation: string;
@@ -32,6 +33,36 @@ const BookingForm = () => {
   const [estimationData, setEstimationData] = useState<EstimationData | null>(null);
   const [bookingStep, setBookingStep] = useState<'form' | 'estimation' | 'confirmed'>('form');
 
+  // Initialize Google Places autocomplete when component mounts
+  React.useEffect(() => {
+    const initAutocomplete = () => {
+      const pickupInput = document.querySelector('input[name="pickupLocation"]') as HTMLInputElement;
+      const dropInput = document.querySelector('input[name="dropLocation"]') as HTMLInputElement;
+      
+      if (pickupInput && dropInput && window.google) {
+        initializeAutocomplete(pickupInput, (place) => {
+          setValue('pickupLocation', place);
+        });
+        
+        initializeAutocomplete(dropInput, (place) => {
+          setValue('dropLocation', place);
+        });
+      }
+    };
+
+    // Wait for Google Maps to load
+    if (window.google) {
+      initAutocomplete();
+    } else {
+      const checkGoogle = setInterval(() => {
+        if (window.google) {
+          initAutocomplete();
+          clearInterval(checkGoogle);
+        }
+      }, 100);
+    }
+  }, [setValue]);
+
   const {
     register,
     handleSubmit,
@@ -39,6 +70,7 @@ const BookingForm = () => {
     formState: { errors },
     reset,
     getValues,
+    setValue,
   } = useForm<BookingFormData>();
 
   const tripType = watch("tripType");
@@ -56,28 +88,52 @@ const BookingForm = () => {
   ];
 
   const calculateEstimation = async (data: BookingFormData): Promise<EstimationData> => {
-    // Mock distance calculation for demo
-    const mockDistance = Math.floor(Math.random() * 400) + 130; // 130-530 km
-    const mockDuration = Math.floor(mockDistance / 60); // Rough duration in hours
-    const hours = Math.floor(mockDuration);
-    const minutes = Math.floor((mockDuration % 1) * 60);
-    const duration = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-    
-    const selectedCar = carTypes.find(car => car.value === data.carType);
-    const rate = selectedCar?.rate || 14;
-    
-    const driverBata = data.tripType === 'one-way' ? 400 : 500;
-    const baseFare = mockDistance * rate;
-    const totalFare = baseFare + driverBata;
+    try {
+      // Try to get real distance using Google Maps
+      const distanceData = await calculateDistance(data.pickupLocation, data.dropLocation);
+      const distance = distanceData.distance;
+      const duration = distanceData.duration;
+      
+      const selectedCar = carTypes.find(car => car.value === data.carType);
+      const rate = selectedCar?.rate || 14;
+      
+      const driverBata = data.tripType === 'one-way' ? 400 : 500;
+      const baseFare = distance * rate;
+      const totalFare = baseFare + driverBata;
 
-    return {
-      distance: mockDistance,
-      duration,
-      baseFare,
-      totalFare,
-      carType: data.carType,
-      tripType: data.tripType
-    };
+      return {
+        distance,
+        duration,
+        baseFare,
+        totalFare,
+        carType: data.carType,
+        tripType: data.tripType
+      };
+    } catch (error) {
+      console.log('Using fallback distance calculation');
+      // Fallback to mock calculation
+      const mockDistance = Math.floor(Math.random() * 400) + 130;
+      const mockDuration = Math.floor(mockDistance / 60);
+      const hours = Math.floor(mockDuration);
+      const minutes = Math.floor((mockDuration % 1) * 60);
+      const duration = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+      
+      const selectedCar = carTypes.find(car => car.value === data.carType);
+      const rate = selectedCar?.rate || 14;
+      
+      const driverBata = data.tripType === 'one-way' ? 400 : 500;
+      const baseFare = mockDistance * rate;
+      const totalFare = baseFare + driverBata;
+
+      return {
+        distance: mockDistance,
+        duration,
+        baseFare,
+        totalFare,
+        carType: data.carType,
+        tripType: data.tripType
+      };
+    }
   };
 
   const onGetEstimation = async (data: BookingFormData) => {
@@ -108,7 +164,19 @@ const BookingForm = () => {
         body: JSON.stringify(enquiryData)
       });
       
-      const responseData = await response.json();
+      let responseData;
+      try {
+        const responseText = await response.text();
+        if (responseText) {
+          responseData = JSON.parse(responseText);
+        } else {
+          throw new Error('Empty response from server');
+        }
+      } catch (jsonError) {
+        console.error('❌ JSON parsing error:', jsonError);
+        throw new Error('Invalid response from server');
+      }
+      
       console.log('✅ API Response received:', responseData);
 
       if (responseData.success) {
@@ -161,7 +229,18 @@ const BookingForm = () => {
         body: JSON.stringify(bookingData)
       });
 
-      const responseData = await response.json();
+      let responseData;
+      try {
+        const responseText = await response.text();
+        if (responseText) {
+          responseData = JSON.parse(responseText);
+        } else {
+          throw new Error('Empty response from server');
+        }
+      } catch (jsonError) {
+        console.error('❌ JSON parsing error:', jsonError);
+        throw new Error('Invalid response from server');
+      }
 
       if (responseData.success) {
         setBookingStep('confirmed');
@@ -244,499 +323,4 @@ const BookingForm = () => {
               {/* Features */}
               <div className="grid grid-cols-3 gap-6 mb-8">
                 <div className="bg-white rounded-lg p-4 text-center shadow-md">
-                  <div className="text-2xl font-bold text-gray-800">
-                    24/7 Service
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    Available round the clock
-                  </div>
-                </div>
-                <div className="bg-white rounded-lg p-4 text-center shadow-md">
-                  <div className="text-2xl font-bold text-gray-800">
-                    Fixed Pricing
-                  </div>
-                  <div className="text-sm text-gray-600">No hidden charges</div>
-                </div>
-                <div className="bg-white rounded-lg p-4 text-center shadow-md">
-                  <div className="text-2xl font-bold text-gray-800">
-                    Professional Drivers
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    Experienced & verified
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Side - Booking Form */}
-            <div className="bg-white p-6 rounded-lg shadow-xl backdrop-blur-sm bg-opacity-95">
-              {bookingStep === 'form' && (
-                <>
-                  <h3 className="text-xl font-bold mb-4">Get Taxi Estimation</h3>
-                  <form onSubmit={handleSubmit(onGetEstimation)} className="space-y-4">
-                    {/* Trip Type */}
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Trip Type
-                      </label>
-                      <div className="flex space-x-4">
-                        <label>
-                          <input
-                            type="radio"
-                            {...register("tripType", {
-                              required: "Trip type is required",
-                            })}
-                            value="one-way"
-                          />{" "}
-                          One Way
-                        </label>
-                        <label>
-                          <input
-                            type="radio"
-                            {...register("tripType", {
-                              required: "Trip type is required",
-                            })}
-                            value="round-trip"
-                          />{" "}
-                          Round Trip
-                        </label>
-                      </div>
-                      {errors.tripType && (
-                        <p className="text-red-500 text-sm">
-                          {errors.tripType.message}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Pickup & Drop */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex items-center border rounded px-3 py-2">
-                        <MapPin className="w-5 h-5 text-gray-500 mr-2" />
-                        <input
-                          type="text"
-                          {...register("pickupLocation", {
-                            required: "Pickup location is required",
-                          })}
-                          placeholder="Pickup Location"
-                          className="w-full outline-none"
-                          name="pickupLocation"
-                        />
-                      </div>
-                      <div className="flex items-center border rounded px-3 py-2">
-                        <MapPin className="w-5 h-5 text-gray-500 mr-2" />
-                        <input
-                          type="text"
-                          {...register("dropLocation", {
-                            required: "Drop location is required",
-                          })}
-                          placeholder="Drop Location"
-                          className="w-full outline-none"
-                          name="dropLocation"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Phone */}
-                    <div className="flex items-center border rounded px-3 py-2">
-                      <Phone className="w-5 h-5 text-gray-500 mr-2" />
-                      <input
-                        type="tel"
-                        {...register("phone", {
-                          required: "Phone number is required",
-                          pattern: {
-                            value: /^[0-9]{10}$/,
-                            message: "Enter valid 10-digit number",
-                          },
-                        })}
-                        placeholder="Phone Number"
-                        className="w-full outline-none"
-                      />
-                    </div>
-                    {errors.phone && (
-                      <p className="text-red-500 text-sm">
-                        {errors.phone.message}
-                      </p>
-                    )}
-
-                    {/* Show after phone valid */}
-                    {isPhoneValid && (
-                      <>
-                        {/* Name */}
-                        <div className="flex items-center border rounded px-3 py-2">
-                          <User className="w-5 h-5 text-gray-500 mr-2" />
-                          <input
-                            type="text"
-                            {...register("name", {
-                              required: "Name is required",
-                            })}
-                            placeholder="Full Name"
-                            className="w-full outline-none"
-                          />
-                        </div>
-
-                        {/* Email */}
-                        <div className="flex items-center border rounded px-3 py-2">
-                          <User className="w-5 h-5 text-gray-500 mr-2" />
-                          <input
-                            type="email"
-                            {...register("email", {
-                              required: "Email is required",
-                              pattern: {
-                                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                                message: "Enter valid email address",
-                              },
-                            })}
-                            placeholder="Email Address"
-                            className="w-full outline-none"
-                          />
-                        </div>
-
-                        {/* Date & Time */}
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="flex items-center border rounded px-3 py-2">
-                            <Calendar className="w-5 h-5 text-gray-500 mr-2" />
-                            <input
-                              type="date"
-                              {...register("date", {
-                                required: "Travel date is required",
-                              })}
-                              min={new Date().toISOString().split("T")[0]}
-                              className="w-full outline-none"
-                            />
-                          </div>
-                          <div className="flex items-center border rounded px-3 py-2">
-                            <Clock className="w-5 h-5 text-gray-500 mr-2" />
-                            <input
-                              type="time"
-                              {...register("time", {
-                                required: "Travel time is required",
-                              })}
-                              className="w-full outline-none"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Car Type */}
-                        <div>
-                          <label className="block text-sm font-medium mb-2">
-                            Car Type
-                          </label>
-                          <div className="grid grid-cols-2 gap-3">
-                            {carTypes.map((car) => (
-                              <label
-                                key={car.value}
-                                className="border p-3 rounded cursor-pointer flex items-center"
-                              >
-                                <input
-                                  type="radio"
-                                  {...register("carType", {
-                                    required: "Car type is required",
-                                  })}
-                                  value={car.value}
-                                  className="mr-2"
-                                />
-                                {car.label} - {car.price}
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Submit */}
-                        <button
-                          type="submit"
-                          disabled={isSubmitting}
-                          className="w-full bg-yellow-500 text-gray-900 py-3 rounded-lg font-semibold hover:bg-yellow-600 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-yellow-500"
-                        >
-                          <Calculator className="h-4 w-4" />
-                          <span>{isSubmitting ? "Calculating..." : "Get Estimation"}</span>
-                        </button>
-                        
-                        {/* Debug Info */}
-                        {process.env.NODE_ENV === 'development' && (
-                          <div className="mt-2 text-xs text-gray-500">
-                            <p>Server: http://localhost:5000</p>
-                            <p>Status: {isSubmitting ? 'Processing...' : 'Ready'}</p>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </form>
-                </>
-              )}
-
-              {bookingStep === 'estimation' && estimationData && (
-                <>
-                  <h3 className="text-xl font-bold mb-4">Trip Estimation</h3>
-                  <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <span className="text-sm text-gray-600">Distance</span>
-                        <div className="font-bold text-lg">{estimationData.distance} km</div>
-                      </div>
-                      <div>
-                        <span className="text-sm text-gray-600">Duration</span>
-                        <div className="font-bold text-lg">{estimationData.duration}</div>
-                      </div>
-                    </div>
-                    
-                    <div className="border-t pt-4">
-                      <div className="flex justify-between mb-2">
-                        <span>Base Fare ({estimationData.distance} km)</span>
-                        <span>₹{estimationData.baseFare}</span>
-                      </div>
-                      <div className="flex justify-between mb-2">
-                        <span>Driver Bata</span>
-                        <span>₹{estimationData.tripType === 'one-way' ? 400 : 500}</span>
-                      </div>
-                      <div className="flex justify-between font-bold text-lg border-t pt-2">
-                        <span>Total Fare</span>
-                        <span className="text-yellow-600">₹{estimationData.totalFare}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <button
-                      onClick={onConfirmBooking}
-                      disabled={isSubmitting}
-                      className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                      <span>{isSubmitting ? "Confirming..." : "Confirm Booking"}</span>
-                    </button>
-                    
-                    <button
-                      onClick={resetForm}
-                      className="w-full bg-gray-500 text-white py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors"
-                    >
-                      Back to Form
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {bookingStep === 'confirmed' && (
-                <div className="text-center">
-                  <div className="text-6xl mb-4">🎉</div>
-                  <h3 className="text-xl font-bold mb-4 text-green-600">Booking Confirmed!</h3>
-                  <p className="text-gray-600 mb-6">
-                    Your booking has been confirmed. You will receive confirmation details via:
-                  </p>
-                  <div className="space-y-2 mb-6">
-                    <div className="flex items-center justify-center space-x-2">
-                      <span className="text-green-500">✓</span>
-                      <span>WhatsApp Message</span>
-                    </div>
-                    <div className="flex items-center justify-center space-x-2">
-                      <span className="text-green-500">✓</span>
-                      <span>Email Confirmation</span>
-                    </div>
-                    <div className="flex items-center justify-center space-x-2">
-                      <span className="text-green-500">✓</span>
-                      <span>Telegram Notification</span>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Our team will contact you shortly to finalize the details.
-                  </p>
-                </div>
-              )}
-
-              {/* Success/Error Message */}
-              {submitMessage && (
-                <p
-                  className={`mt-4 text-sm font-medium ${
-                    submitSuccess ? "text-green-600" : "text-red-600"
-                  }`}
-                >
-                  {submitMessage}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Tariff Section */}
-     <section id="tariff" className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Tariff Details
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Transparent pricing with no hidden charges. Choose the perfect car
-              for your journey.
-            </p>
-          </div>
-
-          {/* Tariff Tables */}
-          <div className="grid lg:grid-cols-2 gap-8 mb-12">
-            {/* One Way Tariff */}
-            <div className="bg-gray-50 rounded-2xl p-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                One Way Tariff
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="bg-yellow-400">
-                      <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">
-                        Vehicle Type
-                      </th>
-                      <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">
-                        Rate/KM
-                      </th>
-                      <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">
-                        Driver Bata
-                      </th>
-                      <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900">
-                        Additional Charge
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="bg-white">
-                      <td className="border px-4 py-3 font-medium">SEDAN</td>
-                      <td className="border px-4 py-3">₹14/KM</td>
-                      <td className="border px-4 py-3">₹400</td>
-                      <td className="border px-4 py-3">One way Toll</td>
-                    </tr>
-                    <tr className="bg-gray-50">
-                      <td className="border px-4 py-3 font-medium">ETIOS</td>
-                      <td className="border px-4 py-3">₹14/KM</td>
-                      <td className="border px-4 py-3">₹400</td>
-                      <td className="border px-4 py-3">One way Toll</td>
-                    </tr>
-                    <tr className="bg-white">
-                      <td className="border px-4 py-3 font-medium">SUV</td>
-                      <td className="border px-4 py-3">₹19/KM</td>
-                      <td className="border px-4 py-3">₹400</td>
-                      <td className="border px-4 py-3">One way Toll</td>
-                    </tr>
-                    <tr className="bg-gray-50">
-                      <td className="border px-4 py-3 font-medium">INNOVA</td>
-                      <td className="border px-4 py-3">₹20/KM</td>
-                      <td className="border px-4 py-3">₹400</td>
-                      <td className="border px-4 py-3">One way Toll</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Drop Trip Terms */}
-              <div className="mt-8 bg-white rounded-lg p-6">
-                <h4 className="text-lg font-bold text-gray-900 mb-4">
-                  Drop Trip Terms
-                </h4>
-                <ul className="space-y-2 text-gray-700">
-                  <li>• Driver Bata: ₹400</li>
-                  <li>• Waiting Charges: ₹100 per hour</li>
-                  <li>• Minimum billing: 130 KM</li>
-                  <li>• Hill station charges: ₹300</li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Round Trip Tariff */}
-            <div className="bg-gray-50 rounded-2xl p-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                Round Trip Tariff
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="bg-yellow-400">
-                      <th className="border px-4 py-3 text-left font-semibold text-gray-900">
-                        Vehicle Type
-                      </th>
-                      <th className="border px-4 py-3 text-left font-semibold text-gray-900">
-                        Rate/KM
-                      </th>
-                      <th className="border px-4 py-3 text-left font-semibold text-gray-900">
-                        Driver Bata
-                      </th>
-                      <th className="border px-4 py-3 text-left font-semibold text-gray-900">
-                        Additional Charge
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="bg-white">
-                      <td className="border px-4 py-3 font-medium">SEDAN</td>
-                      <td className="border px-4 py-3">₹14/KM</td>
-                      <td className="border px-4 py-3">₹500/day</td>
-                      <td className="border px-4 py-3">Round trip Toll</td>
-                    </tr>
-                    <tr className="bg-gray-50">
-                      <td className="border px-4 py-3 font-medium">ETIOS</td>
-                      <td className="border px-4 py-3">₹14/KM</td>
-                      <td className="border px-4 py-3">₹500/day</td>
-                      <td className="border px-4 py-3">Round trip Toll</td>
-                    </tr>
-                    <tr className="bg-white">
-                      <td className="border px-4 py-3 font-medium">SUV</td>
-                      <td className="border px-4 py-3">₹19/KM</td>
-                      <td className="border px-4 py-3">₹500/day</td>
-                      <td className="border px-4 py-3">Round trip Toll</td>
-                    </tr>
-                    <tr className="bg-gray-50">
-                      <td className="border px-4 py-3 font-medium">INNOVA</td>
-                      <td className="border px-4 py-3">₹20/KM</td>
-                      <td className="border px-4 py-3">₹500/day</td>
-                      <td className="border px-4 py-3">Round trip Toll</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Round Trip Terms */}
-              <div className="mt-8 bg-white rounded-lg p-6">
-                <h4 className="text-lg font-bold text-gray-900 mb-4">
-                  Round Trip Terms
-                </h4>
-                <ul className="space-y-2 text-gray-700">
-                  <li>• Driver Bata: ₹500 per day</li>
-                  <li>• Minimum billing: 250 KM</li>
-                  <li>• Bangalore pickup: 300kms minimum</li>
-                  <li>• Any other state: 250kms minimum</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Additional Info */}
-          <div className="bg-yellow-50 rounded-2xl p-8">
-            <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">
-              Additional Information
-            </h3>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h4 className="text-lg font-bold text-gray-900 mb-4">
-                  Extra Charges:
-                </h4>
-                <ul className="space-y-2 text-gray-700">
-                  <li>• Toll fees (as applicable)</li>
-                  <li>• Inter-State Permit charges</li>
-                  <li>• GST charges (if any)</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-lg font-bold text-gray-900 mb-4">
-                  Important Notes:
-                </h4>
-                <ul className="space-y-2 text-gray-700">
-                  <li>• 1 day = 1 calendar day (12 AM to 12 AM)</li>
-                  <li>• Luggage policy at driver's discretion</li>
-                  <li>• Taxis are passenger vehicles only</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      </>
-  );
-};
-
-export default BookingForm;
+                  <div className="text-2xl font-bold text-gray
