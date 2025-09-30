@@ -38,7 +38,7 @@ const Footer = () => {
                 <span className="text-2xl">🚕</span>
               </div>
               <div>
-                <h3 className="text-2xl font-bold">Zip Drop Taxi</h3>
+                <h3 className="text-2xl font-bold">Happy Ride Drop Taxi</h3>
                 <p className="text-gray-400 text-sm">Your Trusted Travel Partner</p>
               </div>
             </div>
@@ -98,8 +98,8 @@ const Footer = () => {
                 <Phone className="h-5 w-5 text-yellow-400 mt-1" />
                 <div>
                   <p className="font-semibold">Phone</p>
-                  <a href="tel:+1234567890" className="text-gray-300 hover:text-yellow-400 transition-colors">
-                    +1 (234) 567-890
+                  <a href="tel:+919087520500" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    +91 90875 20500
                   </a>
                   <p className="text-sm text-gray-400">Available 24/7</p>
                 </div>
@@ -109,8 +109,8 @@ const Footer = () => {
                 <Mail className="h-5 w-5 text-yellow-400 mt-1" />
                 <div>
                   <p className="font-semibold">Email</p>
-                  <a href="mailto:info@zipdroptaxi.com" className="text-gray-300 hover:text-yellow-400 transition-colors">
-                    info@zipdroptaxi.com
+                  <a href="mailto:happyridedroptaxi@gmail.com" className="text-gray-300 hover:text-yellow-400 transition-colors">
+                    happyridedroptaxi@gmail.com
                   </a>
                   <p className="text-sm text-gray-400">Customer Support</p>
                 </div>
@@ -122,7 +122,7 @@ const Footer = () => {
                   <p className="font-semibold">Office Address</p>
                   <p className="text-gray-300">
                     123 Business Street<br />
-                    New York, NY 10001
+                    Chennai, Tamil Nadu 600001
                   </p>
                 </div>
               </div>
@@ -157,7 +157,7 @@ const Footer = () => {
 
             <div className="mt-8 bg-yellow-400 text-gray-900 p-4 rounded-lg text-center">
               <p className="font-bold text-sm">Emergency Hotline</p>
-              <a href="tel:+1234567890" className="font-bold">+1 (234) 567-890</a>
+              <a href="tel:+919087520500" className="font-bold">+91 90875 20500</a>
             </div>
           </div>
         </div>
@@ -166,7 +166,7 @@ const Footer = () => {
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-gray-400 text-sm">
-              © {currentYear} Zip Drop Taxi. All rights reserved. | Designed with ❤️ for better travel experience.
+              © {currentYear} Happy Ride Drop Taxi. All rights reserved. | Designed with ❤️ for better travel experience.
             </div>
             <div className="mt-4 md:mt-0 text-sm text-gray-400">
               <span>Licensed Taxi Service Provider</span> | <span>GST: 123456789</span>

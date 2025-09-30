@@ -1,4 +1,4 @@
-# Zip Drop Taxi - Premium Outstation Taxi Service
+# Happy Ride Drop Taxi - Premium Outstation Taxi Service
 
 A complete taxi booking website built with React, Tailwind CSS, Node.js, and Express.
 
@@ -35,7 +35,7 @@ A complete taxi booking website built with React, Tailwind CSS, Node.js, and Exp
 Create a `.env` file in the root directory:
 
 ```env
-GMAIL_USER=your-email@gmail.com
+GMAIL_USER=happyridedroptaxi@gmail.com
 GMAIL_PASS=your-app-password
 PORT=5000
 ```
@@ -74,7 +74,7 @@ Update the phone number in:
 - `server.js` (line 32)
 - `src/components/WhatsAppFloat.tsx` (line 6)
 
-Replace `1234567890` with your actual WhatsApp number.
+Replace `919087520500` with your actual WhatsApp number.
 
 ## API Endpoints
 

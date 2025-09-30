@@ -3,7 +3,7 @@ import { Phone } from 'lucide-react';
 
 const PhoneFloat = () => {
   const handlePhoneClick = () => {
-    window.open('tel:+1234567890', '_self');
+    window.open('tel:+919087520500', '_self');
   };
 
   return (

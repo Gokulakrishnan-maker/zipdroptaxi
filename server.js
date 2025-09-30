@@ -38,7 +38,7 @@ const generateWhatsAppLink = (bookingDetails) => {
 📞 Phone: ${bookingDetails.phone}
 🛣️ Trip: ${bookingDetails.tripType}`;
   
-  const phoneNumber = '1234567890'; // Replace with actual WhatsApp number
+  const phoneNumber = '919087520500'; // Replace with actual WhatsApp number
   return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 };
 
@@ -76,8 +76,8 @@ app.post('/api/book', async (req, res) => {
     // Admin email
     const adminMailOptions = {
       from: process.env.GMAIL_USER,
-      to: 'admin@zipdroptaxi.com', // Replace with actual admin email
-      subject: 'New Taxi Booking Request - Zip Drop Taxi',
+      to: 'happyridedroptaxi@gmail.com', // Replace with actual admin email
+      subject: 'New Taxi Booking Request - Happy Ride Drop Taxi',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: #FBBF24; padding: 20px; text-align: center;">
@@ -106,16 +106,16 @@ app.post('/api/book', async (req, res) => {
     const customerMailOptions = {
       from: process.env.GMAIL_USER,
       to: email,
-      subject: 'Booking Confirmation - Zip Drop Taxi',
+      subject: 'Booking Confirmation - Happy Ride Drop Taxi',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: #FBBF24; padding: 20px; text-align: center;">
-            <h1 style="color: #1F2937; margin: 0;">🚕 Zip Drop Taxi</h1>
+            <h1 style="color: #1F2937; margin: 0;">🚕 Happy Ride Drop Taxi</h1>
             <p style="color: #1F2937; margin: 10px 0 0 0;">Booking Confirmation</p>
           </div>
           <div style="padding: 20px; border: 1px solid #e5e7eb;">
             <p>Dear <strong>${name}</strong>,</p>
-            <p>Thank you for choosing Zip Drop Taxi! We have received your booking request and will contact you shortly to confirm the details.</p>
+            <p>Thank you for choosing Happy Ride Drop Taxi! We have received your booking request and will contact you shortly to confirm the details.</p>
             
             <h3 style="color: #1F2937;">Your Trip Details:</h3>
             <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin: 15px 0;">
@@ -131,12 +131,12 @@ app.post('/api/book', async (req, res) => {
             <p>Our team will call you at <strong>${phone}</strong> within 30 minutes to confirm your booking and provide the final quote.</p>
             
             <div style="text-align: center; margin: 20px 0;">
-              <a href="tel:+1234567890" style="background: #FBBF24; color: #1F2937; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">📞 Call Us: +1 (234) 567-890</a>
+              <a href="tel:+919087520500" style="background: #FBBF24; color: #1F2937; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">📞 Call Us: +91 90875 20500</a>
             </div>
             
             <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">
               Best regards,<br>
-              Zip Drop Taxi Team
+              Happy Ride Drop Taxi Team
             </p>
           </div>
         </div>

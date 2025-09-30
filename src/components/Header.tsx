@@ -19,7 +19,7 @@ const Header = () => {
               <span className="text-2xl">🚕</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">Zip Drop Taxi</h1>
+              <h1 className="text-2xl font-bold text-gray-800">Happy Ride Drop Taxi</h1>
               <p className="text-sm text-gray-600">Your Trusted Travel Partner</p>
             </div>
           </div>
@@ -38,7 +38,7 @@ const Header = () => {
           {/* CTA Button */}
           <div className="hidden md:flex items-center space-x-4">
             <a 
-              href="tel:+1234567890"
+              href="tel:+919087520500"
               className="bg-yellow-400 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-yellow-500 transition-colors flex items-center space-x-2"
             >
               <Phone className="h-4 w-4" />
@@ -68,7 +68,7 @@ const Header = () => {
               <a href="#contact" className="text-gray-700 hover:text-yellow-500 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors">Contact</a>
               <div className="pt-4 border-t border-gray-200">
                 <a 
-                  href="tel:+1234567890"
+                  href="tel:+919087520500"
                   className="bg-yellow-400 text-gray-800 px-6 py-3 rounded-lg font-semibold hover:bg-yellow-500 transition-colors flex items-center justify-center space-x-2"
                 >
                   <Phone className="h-4 w-4" />

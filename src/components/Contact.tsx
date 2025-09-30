@@ -6,29 +6,29 @@ const Contact = () => {
     {
       icon: <Phone className="h-6 w-6" />,
       title: 'Phone',
-      details: '+1 (234) 567-890',
+      details: '+91 90875 20500',
       subtext: 'Available 24/7',
-      action: 'tel:+1234567890'
+      action: 'tel:+919087520500'
     },
     {
       icon: <Mail className="h-6 w-6" />,
       title: 'Email',
-      details: 'info@zipdroptaxi.com',
+      details: 'happyridedroptaxi@gmail.com',
       subtext: 'Support team',
-      action: 'mailto:info@zipdroptaxi.com'
+      action: 'mailto:happyridedroptaxi@gmail.com'
     },
     {
       icon: <MessageCircle className="h-6 w-6" />,
       title: 'WhatsApp',
-      details: '+1 (234) 567-890',
+      details: '+91 90875 20500',
       subtext: 'Chat with us',
-      action: 'https://wa.me/1234567890'
+      action: 'https://wa.me/919087520500'
     },
     {
       icon: <MapPin className="h-6 w-6" />,
       title: 'Office',
       details: '123 Business Street',
-      subtext: 'New York, NY 10001',
+      subtext: 'Chennai, Tamil Nadu 600001',
       action: null
     }
   ];
@@ -142,14 +142,14 @@ const Contact = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a 
-                  href="tel:+1234567890"
+                  href="tel:+919087520500"
                   className="bg-white text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center space-x-2"
                 >
                   <Phone className="h-4 w-4" />
                   <span>Call Now</span>
                 </a>
                 <a 
-                  href="https://wa.me/1234567890"
+                  href="https://wa.me/919087520500"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-gray-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2"
@@ -169,11 +169,11 @@ const Contact = () => {
             For urgent assistance during your trip or emergency situations:
           </p>
           <a 
-            href="tel:+1234567890"
+            href="tel:+919087520500"
             className="bg-red-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors inline-flex items-center space-x-2"
           >
             <Phone className="h-4 w-4" />
-            <span>Emergency Hotline: +1 (234) 567-890</span>
+            <span>Emergency Hotline: +91 90875 20500</span>
           </a>
         </div>
       </div>
