@@ -165,11 +165,19 @@ const BookingForm = () => {
         body: JSON.stringify(enquiryData)
       });
       
+      console.log('📡 Response status:', response.status);
+      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
+      
       // Check if response is ok
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Server error response:', errorText);
-        throw new Error(`Server error: ${response.status} - ${response.statusText}`);
+        console.error('❌ Server error response:', response.status, errorText);
+        
+        if (response.status === 404) {
+          throw new Error('API endpoint not found. Please check if the server is running on the correct port.');
+        } else {
+          throw new Error(`Server error: ${response.status} - ${response.statusText}`);
+        }
       }
       
       // Check content type
@@ -238,11 +246,18 @@ const BookingForm = () => {
         body: JSON.stringify(bookingData)
       });
 
+      console.log('📡 Booking response status:', response.status);
+      
       // Check if response is ok
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Server error response:', errorText);
-        throw new Error(`Server error: ${response.status} - ${response.statusText}`);
+        console.error('❌ Booking server error response:', response.status, errorText);
+        
+        if (response.status === 404) {
+          throw new Error('Booking API endpoint not found. Please check if the server is running.');
+        } else {
+          throw new Error(`Server error: ${response.status} - ${response.statusText}`);
+        }
       }
       
       // Check content type
