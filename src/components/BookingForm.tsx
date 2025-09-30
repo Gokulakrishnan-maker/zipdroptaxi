@@ -23,6 +23,7 @@ interface EstimationData {
   totalFare: number;
   carType: string;
   tripType: string;
+  bookingId?: string;
 }
 
 const BookingForm = () => {
