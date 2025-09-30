@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { MapPin, User, Phone, Calendar, Clock } from "lucide-react";
+import { MapPin, User, Phone, Calendar, Clock, Calculator, CheckCircle } from "lucide-react";
 import axios from "axios";
 import { loadGoogleMapsAPI } from "../utils/googleMaps";
 
@@ -13,6 +13,16 @@ interface BookingFormData {
   carType: string;
   name: string;
   phone: string;
+  email: string;
+}
+
+interface EstimationData {
+  distance: number;
+  duration: string;
+  baseFare: number;
+  totalFare: number;
+  carType: string;
+  tripType: string;
 }
 
 const BookingForm = () => {
@@ -22,6 +32,9 @@ const BookingForm = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [pickupAutocomplete, setPickupAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
   const [dropAutocomplete, setDropAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
+  const [showEstimation, setShowEstimation] = useState(false);
+  const [estimationData, setEstimationData] = useState<EstimationData | null>(null);
+  const [bookingStep, setBookingStep] = useState<'form' | 'estimation' | 'confirmed'>('form');
 
   const {
     register,
@@ -29,19 +42,21 @@ const BookingForm = () => {
     watch,
     formState: { errors },
     reset,
+    getValues,
   } = useForm<BookingFormData>();
 
   const tripType = watch("tripType");
   const phoneValue = watch("phone");
+  const carType = watch("carType");
 
   // ✅ Phone validation
   const isPhoneValid = /^[0-9]{10}$/.test(phoneValue || "");
 
   const carTypes = [
-    { value: "sedan", label: "Sedan (4 Seats)", price: "₹14/km" },
-    { value: "etios", label: "Etios (4 Seats)", price: "₹14/km" },
-    { value: "suv", label: "SUV (6 Seats)", price: "₹19/km" },
-    { value: "innova", label: "Innova (7 Seats)", price: "₹20/km" },
+    { value: "sedan", label: "Sedan (4 Seats)", price: "₹14/km", rate: 14 },
+    { value: "etios", label: "Etios (4 Seats)", price: "₹14/km", rate: 14 },
+    { value: "suv", label: "SUV (6 Seats)", price: "₹19/km", rate: 19 },
+    { value: "innova", label: "Innova (7 Seats)", price: "₹20/km", rate: 20 },
   ];
 
   // Load Google Maps API on component mount
@@ -81,24 +96,53 @@ const BookingForm = () => {
     }
   }, [isGoogleMapsLoaded, pickupAutocomplete, dropAutocomplete]);
 
-  const onSubmit = async (data: BookingFormData) => {
+  const calculateEstimation = (data: BookingFormData): EstimationData => {
+    // Mock distance calculation (in real app, use Google Distance Matrix API)
+    const mockDistance = Math.floor(Math.random() * 400) + 100; // 100-500 km
+    const selectedCar = carTypes.find(car => car.value === data.carType);
+    const rate = selectedCar?.rate || 14;
+    
+    const driverBata = data.tripType === 'one-way' ? 400 : 500;
+    const baseFare = mockDistance * rate;
+    const totalFare = baseFare + driverBata;
+    
+    const duration = Math.floor(mockDistance / 60 * 60); // Assuming 60 km/h average
+    const hours = Math.floor(duration / 60);
+    const minutes = duration % 60;
+    const durationStr = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+
+    return {
+      distance: mockDistance,
+      duration: durationStr,
+      baseFare,
+      totalFare,
+      carType: data.carType,
+      tripType: data.tripType
+    };
+  };
+
+  const onGetEstimation = async (data: BookingFormData) => {
     setIsSubmitting(true);
     setSubmitMessage("");
 
     try {
-      const response = await axios.post("http://localhost:5000/api/book", data);
+      // Calculate estimation
+      const estimation = calculateEstimation(data);
+      setEstimationData(estimation);
+      
+      // Send enquiry to server
+      const enquiryData = {
+        ...data,
+        estimation,
+        type: 'enquiry'
+      };
+
+      const response = await axios.post("http://localhost:5000/api/enquiry", enquiryData);
 
       if (response.data.success) {
+        setBookingStep('estimation');
+        setSubmitMessage("✅ Estimation calculated! Review details below.");
         setSubmitSuccess(true);
-        setSubmitMessage(
-          "✅ Booking request submitted successfully! We will contact you shortly."
-        );
-
-        if (response.data.whatsappLink) {
-          window.open(response.data.whatsappLink, "_blank");
-        }
-
-        reset();
       }
     } catch (error: any) {
       setSubmitSuccess(false);
@@ -109,6 +153,58 @@ const BookingForm = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const onConfirmBooking = async () => {
+    setIsSubmitting(true);
+    setSubmitMessage("");
+
+    try {
+      const formData = getValues();
+      const bookingData = {
+        ...formData,
+        estimation: estimationData,
+        type: 'booking'
+      };
+
+      const response = await axios.post("http://localhost:5000/api/book", bookingData);
+
+      if (response.data.success) {
+        setBookingStep('confirmed');
+        setSubmitSuccess(true);
+        setSubmitMessage(
+          "🎉 Booking confirmed! You will receive confirmation via WhatsApp, Email, and Telegram."
+        );
+
+        // Open WhatsApp if link provided
+        if (response.data.whatsappLink) {
+          window.open(response.data.whatsappLink, "_blank");
+        }
+
+        // Reset form after 5 seconds
+        setTimeout(() => {
+          reset();
+          setBookingStep('form');
+          setEstimationData(null);
+          setSubmitMessage("");
+        }, 5000);
+      }
+    } catch (error: any) {
+      setSubmitSuccess(false);
+      setSubmitMessage(
+        error.response?.data?.message ||
+          "❌ Something went wrong. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const resetForm = () => {
+    setBookingStep('form');
+    setEstimationData(null);
+    setSubmitMessage("");
+    reset();
   };
 
   return (
@@ -168,169 +264,269 @@ const BookingForm = () => {
 
             {/* Right Side - Booking Form */}
             <div className="bg-white p-6 rounded-lg shadow-xl backdrop-blur-sm bg-opacity-95">
-              <h3 className="text-xl font-bold mb-4">Taxi Booking</h3>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                {/* Trip Type */}
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Trip Type
-                  </label>
-                  <div className="flex space-x-4">
-                    <label>
-                      <input
-                        type="radio"
-                        {...register("tripType", {
-                          required: "Trip type is required",
-                        })}
-                        value="one-way"
-                      />{" "}
-                      One Way
-                    </label>
-                    <label>
-                      <input
-                        type="radio"
-                        {...register("tripType", {
-                          required: "Trip type is required",
-                        })}
-                        value="round-trip"
-                      />{" "}
-                      Round Trip
-                    </label>
-                  </div>
-                  {errors.tripType && (
-                    <p className="text-red-500 text-sm">
-                      {errors.tripType.message}
-                    </p>
-                  )}
-                </div>
+              {bookingStep === 'form' && (
+                <>
+                  <h3 className="text-xl font-bold mb-4">Get Taxi Estimation</h3>
+                  <form onSubmit={handleSubmit(onGetEstimation)} className="space-y-4">
+                    {/* Trip Type */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Trip Type
+                      </label>
+                      <div className="flex space-x-4">
+                        <label>
+                          <input
+                            type="radio"
+                            {...register("tripType", {
+                              required: "Trip type is required",
+                            })}
+                            value="one-way"
+                          />{" "}
+                          One Way
+                        </label>
+                        <label>
+                          <input
+                            type="radio"
+                            {...register("tripType", {
+                              required: "Trip type is required",
+                            })}
+                            value="round-trip"
+                          />{" "}
+                          Round Trip
+                        </label>
+                      </div>
+                      {errors.tripType && (
+                        <p className="text-red-500 text-sm">
+                          {errors.tripType.message}
+                        </p>
+                      )}
+                    </div>
 
-                {/* Pickup & Drop */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex items-center border rounded px-3 py-2">
-                    <MapPin className="w-5 h-5 text-gray-500 mr-2" />
-                    <input
-                      type="text"
-                      {...register("pickupLocation", {
-                        required: "Pickup location is required",
-                      })}
-                      placeholder="Pickup Location"
-                      className="w-full outline-none"
-                      name="pickupLocation"
-                    />
-                  </div>
-                  <div className="flex items-center border rounded px-3 py-2">
-                    <MapPin className="w-5 h-5 text-gray-500 mr-2" />
-                    <input
-                      type="text"
-                      {...register("dropLocation", {
-                        required: "Drop location is required",
-                      })}
-                      placeholder="Drop Location"
-                      className="w-full outline-none"
-                      name="dropLocation"
-                    />
-                  </div>
-                </div>
+                    {/* Pickup & Drop */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex items-center border rounded px-3 py-2">
+                        <MapPin className="w-5 h-5 text-gray-500 mr-2" />
+                        <input
+                          type="text"
+                          {...register("pickupLocation", {
+                            required: "Pickup location is required",
+                          })}
+                          placeholder="Pickup Location"
+                          className="w-full outline-none"
+                          name="pickupLocation"
+                        />
+                      </div>
+                      <div className="flex items-center border rounded px-3 py-2">
+                        <MapPin className="w-5 h-5 text-gray-500 mr-2" />
+                        <input
+                          type="text"
+                          {...register("dropLocation", {
+                            required: "Drop location is required",
+                          })}
+                          placeholder="Drop Location"
+                          className="w-full outline-none"
+                          name="dropLocation"
+                        />
+                      </div>
+                    </div>
 
-                {/* Phone */}
-                <div className="flex items-center border rounded px-3 py-2">
-                  <Phone className="w-5 h-5 text-gray-500 mr-2" />
-                  <input
-                    type="tel"
-                    {...register("phone", {
-                      required: "Phone number is required",
-                      pattern: {
-                        value: /^[0-9]{10}$/,
-                        message: "Enter valid 10-digit number",
-                      },
-                    })}
-                    placeholder="Phone Number"
-                    className="w-full outline-none"
-                  />
-                </div>
-                {errors.phone && (
-                  <p className="text-red-500 text-sm">
-                    {errors.phone.message}
-                  </p>
-                )}
-
-                {/* Show after phone valid */}
-                {isPhoneValid && (
-                  <>
-                    {/* Name */}
+                    {/* Phone */}
                     <div className="flex items-center border rounded px-3 py-2">
-                      <User className="w-5 h-5 text-gray-500 mr-2" />
+                      <Phone className="w-5 h-5 text-gray-500 mr-2" />
                       <input
-                        type="text"
-                        {...register("name", {
-                          required: "Name is required",
+                        type="tel"
+                        {...register("phone", {
+                          required: "Phone number is required",
+                          pattern: {
+                            value: /^[0-9]{10}$/,
+                            message: "Enter valid 10-digit number",
+                          },
                         })}
-                        placeholder="Full Name"
+                        placeholder="Phone Number"
                         className="w-full outline-none"
                       />
                     </div>
+                    {errors.phone && (
+                      <p className="text-red-500 text-sm">
+                        {errors.phone.message}
+                      </p>
+                    )}
 
-                    {/* Date & Time */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex items-center border rounded px-3 py-2">
-                        <Calendar className="w-5 h-5 text-gray-500 mr-2" />
-                        <input
-                          type="date"
-                          {...register("date", {
-                            required: "Travel date is required",
-                          })}
-                          min={new Date().toISOString().split("T")[0]}
-                          className="w-full outline-none"
-                        />
-                      </div>
-                      <div className="flex items-center border rounded px-3 py-2">
-                        <Clock className="w-5 h-5 text-gray-500 mr-2" />
-                        <input
-                          type="time"
-                          {...register("time", {
-                            required: "Travel time is required",
-                          })}
-                          className="w-full outline-none"
-                        />
-                      </div>
-                    </div>
+                    {/* Show after phone valid */}
+                    {isPhoneValid && (
+                      <>
+                        {/* Name */}
+                        <div className="flex items-center border rounded px-3 py-2">
+                          <User className="w-5 h-5 text-gray-500 mr-2" />
+                          <input
+                            type="text"
+                            {...register("name", {
+                              required: "Name is required",
+                            })}
+                            placeholder="Full Name"
+                            className="w-full outline-none"
+                          />
+                        </div>
 
-                    {/* Car Type */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Car Type
-                      </label>
-                      <div className="grid grid-cols-2 gap-3">
-                        {carTypes.map((car) => (
-                          <label
-                            key={car.value}
-                            className="border p-3 rounded cursor-pointer flex items-center"
-                          >
+                        {/* Email */}
+                        <div className="flex items-center border rounded px-3 py-2">
+                          <User className="w-5 h-5 text-gray-500 mr-2" />
+                          <input
+                            type="email"
+                            {...register("email", {
+                              required: "Email is required",
+                              pattern: {
+                                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                message: "Enter valid email address",
+                              },
+                            })}
+                            placeholder="Email Address"
+                            className="w-full outline-none"
+                          />
+                        </div>
+
+                        {/* Date & Time */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="flex items-center border rounded px-3 py-2">
+                            <Calendar className="w-5 h-5 text-gray-500 mr-2" />
                             <input
-                              type="radio"
-                              {...register("carType", {
-                                required: "Car type is required",
+                              type="date"
+                              {...register("date", {
+                                required: "Travel date is required",
                               })}
-                              value={car.value}
-                              className="mr-2"
+                              min={new Date().toISOString().split("T")[0]}
+                              className="w-full outline-none"
                             />
-                            {car.label} - {car.price}
+                          </div>
+                          <div className="flex items-center border rounded px-3 py-2">
+                            <Clock className="w-5 h-5 text-gray-500 mr-2" />
+                            <input
+                              type="time"
+                              {...register("time", {
+                                required: "Travel time is required",
+                              })}
+                              className="w-full outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Car Type */}
+                        <div>
+                          <label className="block text-sm font-medium mb-2">
+                            Car Type
                           </label>
-                        ))}
+                          <div className="grid grid-cols-2 gap-3">
+                            {carTypes.map((car) => (
+                              <label
+                                key={car.value}
+                                className="border p-3 rounded cursor-pointer flex items-center"
+                              >
+                                <input
+                                  type="radio"
+                                  {...register("carType", {
+                                    required: "Car type is required",
+                                  })}
+                                  value={car.value}
+                                  className="mr-2"
+                                />
+                                {car.label} - {car.price}
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Submit */}
+                        <button
+                          type="submit"
+                          disabled={isSubmitting}
+                          className="w-full bg-yellow-500 text-gray-900 py-3 rounded-lg font-semibold hover:bg-yellow-600 transition-colors flex items-center justify-center space-x-2"
+                        >
+                          <Calculator className="h-4 w-4" />
+                          <span>{isSubmitting ? "Calculating..." : "Get Estimation"}</span>
+                        </button>
+                      </>
+                    )}
+                  </form>
+                </>
+              )}
+
+              {bookingStep === 'estimation' && estimationData && (
+                <>
+                  <h3 className="text-xl font-bold mb-4">Trip Estimation</h3>
+                  <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <span className="text-sm text-gray-600">Distance</span>
+                        <div className="font-bold text-lg">{estimationData.distance} km</div>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-600">Duration</span>
+                        <div className="font-bold text-lg">{estimationData.duration}</div>
                       </div>
                     </div>
+                    
+                    <div className="border-t pt-4">
+                      <div className="flex justify-between mb-2">
+                        <span>Base Fare ({estimationData.distance} km)</span>
+                        <span>₹{estimationData.baseFare}</span>
+                      </div>
+                      <div className="flex justify-between mb-2">
+                        <span>Driver Bata</span>
+                        <span>₹{estimationData.tripType === 'one-way' ? 400 : 500}</span>
+                      </div>
+                      <div className="flex justify-between font-bold text-lg border-t pt-2">
+                        <span>Total Fare</span>
+                        <span className="text-yellow-600">₹{estimationData.totalFare}</span>
+                      </div>
+                    </div>
+                  </div>
 
-                    {/* Submit */}
+                  <div className="space-y-3">
                     <button
-                      type="submit"
+                      onClick={onConfirmBooking}
                       disabled={isSubmitting}
-                      className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                      className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
                     >
-                      {isSubmitting ? "Submitting..." : "Book Now"}
+                      <CheckCircle className="h-4 w-4" />
+                      <span>{isSubmitting ? "Confirming..." : "Confirm Booking"}</span>
                     </button>
-                  </>
-                )}
-              </form>
+                    
+                    <button
+                      onClick={resetForm}
+                      className="w-full bg-gray-500 text-white py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors"
+                    >
+                      Back to Form
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {bookingStep === 'confirmed' && (
+                <div className="text-center">
+                  <div className="text-6xl mb-4">🎉</div>
+                  <h3 className="text-xl font-bold mb-4 text-green-600">Booking Confirmed!</h3>
+                  <p className="text-gray-600 mb-6">
+                    Your booking has been confirmed. You will receive confirmation details via:
+                  </p>
+                  <div className="space-y-2 mb-6">
+                    <div className="flex items-center justify-center space-x-2">
+                      <span className="text-green-500">✓</span>
+                      <span>WhatsApp Message</span>
+                    </div>
+                    <div className="flex items-center justify-center space-x-2">
+                      <span className="text-green-500">✓</span>
+                      <span>Email Confirmation</span>
+                    </div>
+                    <div className="flex items-center justify-center space-x-2">
+                      <span className="text-green-500">✓</span>
+                      <span>Telegram Notification</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Our team will contact you shortly to finalize the details.
+                  </p>
+                </div>
+              )}
 
               {/* Success/Error Message */}
               {submitMessage && (
