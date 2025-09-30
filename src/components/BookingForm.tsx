@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { MapPin, User, Phone, Calendar, Clock } from "lucide-react";
 import axios from "axios";
+import { loadGoogleMapsAPI } from "../utils/googleMaps";
 
 interface BookingFormData {
   pickupLocation: string;
@@ -15,9 +16,12 @@ interface BookingFormData {
 }
 
 const BookingForm = () => {
+  const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [pickupAutocomplete, setPickupAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
+  const [dropAutocomplete, setDropAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
 
   const {
     register,
@@ -39,6 +43,43 @@ const BookingForm = () => {
     { value: "suv", label: "SUV (6 Seats)", price: "₹19/km" },
     { value: "innova", label: "Innova (7 Seats)", price: "₹20/km" },
   ];
+
+  // Load Google Maps API on component mount
+  React.useEffect(() => {
+    const initMaps = async () => {
+      try {
+        await loadGoogleMapsAPI();
+        setIsGoogleMapsLoaded(true);
+      } catch (error) {
+        console.error('Failed to load Google Maps API:', error);
+      }
+    };
+    initMaps();
+  }, []);
+
+  // Initialize autocomplete when Google Maps is loaded
+  React.useEffect(() => {
+    if (isGoogleMapsLoaded && window.google && window.google.maps) {
+      const pickupInput = document.querySelector('input[name="pickupLocation"]') as HTMLInputElement;
+      const dropInput = document.querySelector('input[name="dropLocation"]') as HTMLInputElement;
+
+      if (pickupInput && !pickupAutocomplete) {
+        const autocomplete = new google.maps.places.Autocomplete(pickupInput, {
+          componentRestrictions: { country: 'IN' },
+          types: ['establishment', 'geocode']
+        });
+        setPickupAutocomplete(autocomplete);
+      }
+
+      if (dropInput && !dropAutocomplete) {
+        const autocomplete = new google.maps.places.Autocomplete(dropInput, {
+          componentRestrictions: { country: 'IN' },
+          types: ['establishment', 'geocode']
+        });
+        setDropAutocomplete(autocomplete);
+      }
+    }
+  }, [isGoogleMapsLoaded, pickupAutocomplete, dropAutocomplete]);
 
   const onSubmit = async (data: BookingFormData) => {
     setIsSubmitting(true);
@@ -174,6 +215,7 @@ const BookingForm = () => {
                       })}
                       placeholder="Pickup Location"
                       className="w-full outline-none"
+                      name="pickupLocation"
                     />
                   </div>
                   <div className="flex items-center border rounded px-3 py-2">
@@ -185,6 +227,7 @@ const BookingForm = () => {
                       })}
                       placeholder="Drop Location"
                       className="w-full outline-none"
+                      name="dropLocation"
                     />
                   </div>
                 </div>
