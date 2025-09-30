@@ -520,10 +520,11 @@ const sendBookingNotifications = async (bookingData, bookingId) => {
 
 // Enquiry API endpoint
 app.post('/api/enquiry', async (req, res) => {
-  // Set proper headers
-  res.setHeader('Content-Type', 'application/json');
-  
   try {
+    // Set proper headers first
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    
     console.log('📝 Received enquiry request');
     const enquiryData = req.body;
     const { pickupLocation, dropLocation, tripType, name, email, phone, date, time, carType } = enquiryData;
@@ -571,7 +572,7 @@ app.post('/api/enquiry', async (req, res) => {
     const { whatsappLink, telegramLink, bookingId, results } = await sendEnquiryNotifications(enquiryData);
 
     console.log('✅ Enquiry processed successfully:', bookingId);
-    res.json({
+    return res.status(200).json({
       success: true,
       message: 'Enquiry submitted successfully!',
       whatsappLink,
@@ -582,7 +583,7 @@ app.post('/api/enquiry', async (req, res) => {
 
   } catch (error) {
     console.error('❌ Error processing enquiry:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Server error. Please try again later.',
       error: error.message
@@ -592,10 +593,11 @@ app.post('/api/enquiry', async (req, res) => {
 
 // Booking API endpoint
 app.post('/api/book', async (req, res) => {
-  // Set proper headers
-  res.setHeader('Content-Type', 'application/json');
-  
   try {
+    // Set proper headers first
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    
     console.log('📝 Received booking confirmation request');
     const bookingData = req.body;
     const { pickupLocation, dropLocation, tripType, name, email, phone, date, time, carType, estimation, bookingId } = bookingData;
@@ -624,7 +626,7 @@ app.post('/api/book', async (req, res) => {
     const { whatsappLink, telegramLink, results } = await sendBookingNotifications(bookingData, bookingId);
 
     console.log('✅ Booking confirmed successfully:', bookingId);
-    res.json({
+    return res.status(200).json({
       success: true,
       message: 'Booking confirmed successfully!',
       whatsappLink,
@@ -635,14 +637,10 @@ app.post('/api/book', async (req, res) => {
 
   } catch (error) {
     console.error('❌ Error processing booking:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Server error. Please try again later.',
       error: error.message
-    });
-    res.status(500).json({
-      success: false,
-      message: 'Server error. Please try again later.'
     });
   }
 });
@@ -650,13 +648,30 @@ app.post('/api/book', async (req, res) => {
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
-  res.json({ status: 'OK', message: 'Server is running' });
+  return res.status(200).json({ 
+    status: 'OK', 
+    message: 'Server is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Handle preflight requests
+app.options('*', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  return res.status(200).end();
 });
 
 // Error handling middleware
 app.use((error, req, res, next) => {
   console.error('❌ Unhandled error:', error);
-  res.status(500).json({ success: false, message: 'Internal server error' });
+  res.setHeader('Content-Type', 'application/json');
+  return res.status(500).json({ 
+    success: false, 
+    message: 'Internal server error',
+    error: error.message 
+  });
 });
 
 app.listen(PORT, () => {

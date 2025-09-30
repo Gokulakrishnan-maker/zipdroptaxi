@@ -160,23 +160,25 @@ const BookingForm = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
+          'Accept': 'application/json'
         },
         body: JSON.stringify(enquiryData)
       });
       
-      let responseData;
-      try {
-        const responseText = await response.text();
-        if (responseText) {
-          responseData = JSON.parse(responseText);
-        } else {
-          throw new Error('Empty response from server');
-        }
-      } catch (jsonError) {
-        console.error('❌ JSON parsing error:', jsonError);
-        throw new Error('Invalid response from server');
+      // Check if response is ok
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       
+      // Check content type
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('❌ Non-JSON response:', text);
+        throw new Error('Server returned invalid response format');
+      }
+      
+      const responseData = await response.json();
       console.log('✅ API Response received:', responseData);
 
       if (responseData.success) {
@@ -195,8 +197,12 @@ const BookingForm = () => {
       
       let errorMessage = "❌ Something went wrong. Please try again.";
       
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      if (error.message.includes('Failed to fetch')) {
         errorMessage = "❌ Server is not running. Please contact support.";
+      } else if (error.message.includes('HTTP error')) {
+        errorMessage = "❌ Server error. Please try again later.";
+      } else if (error.message.includes('invalid response')) {
+        errorMessage = "❌ Invalid response from server. Please contact support.";
       } else if (error.message) {
         errorMessage = `❌ ${error.message}`;
       }
@@ -225,22 +231,25 @@ const BookingForm = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
+          'Accept': 'application/json'
         },
         body: JSON.stringify(bookingData)
       });
 
-      let responseData;
-      try {
-        const responseText = await response.text();
-        if (responseText) {
-          responseData = JSON.parse(responseText);
-        } else {
-          throw new Error('Empty response from server');
-        }
-      } catch (jsonError) {
-        console.error('❌ JSON parsing error:', jsonError);
-        throw new Error('Invalid response from server');
+      // Check if response is ok
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
+      // Check content type
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('❌ Non-JSON response:', text);
+        throw new Error('Server returned invalid response format');
+      }
+      
+      const responseData = await response.json();
 
       if (responseData.success) {
         setBookingStep('confirmed');
@@ -272,8 +281,12 @@ const BookingForm = () => {
       
       let errorMessage = "❌ Something went wrong. Please try again.";
       
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      if (error.message.includes('Failed to fetch')) {
         errorMessage = "❌ Server is not running. Please contact support.";
+      } else if (error.message.includes('HTTP error')) {
+        errorMessage = "❌ Server error. Please try again later.";
+      } else if (error.message.includes('invalid response')) {
+        errorMessage = "❌ Invalid response from server. Please contact support.";
       } else if (error.message) {
         errorMessage = `❌ ${error.message}`;
       }
